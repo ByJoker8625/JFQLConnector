@@ -1,4 +1,4 @@
-package de.jokergames.connector.util;
+package de.jokergames.jfql.util;
 
 import org.json.JSONObject;
 
@@ -74,6 +74,10 @@ public class Column {
 
     public List<Object> getList(String key) {
         return jsonObject.getJSONObject("content").getJSONArray(key).toList();
+    }
+
+    public boolean isEmpty() {
+        return jsonObject.isEmpty();
     }
 
     @Deprecated

@@ -1,4 +1,4 @@
-package de.jokergames.connector.util;
+package de.jokergames.jfql.util;
 
 /**
  * @author Janick

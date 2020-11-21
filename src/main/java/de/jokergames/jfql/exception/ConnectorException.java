@@ -1,4 +1,4 @@
-package de.jokergames.connector.exception;
+package de.jokergames.jfql.exception;
 
 /**
  * @author Janick

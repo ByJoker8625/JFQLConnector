@@ -1,6 +1,6 @@
-package de.jokergames.connector.util;
+package de.jokergames.jfql.util;
 
-import de.jokergames.connector.exception.ConnectorException;
+import de.jokergames.jfql.exception.ConnectorException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,7 +17,23 @@ public class Result {
     private final JSONObject jsonObject;
 
     public Result(JSONObject jsonObject) {
+        this(jsonObject, true);
+    }
+
+    public Result(JSONObject jsonObject, boolean exception) {
         this.jsonObject = jsonObject;
+
+        if (exception && getType().equals("BAD_METHOD")) {
+            throw new ConnectorException(jsonObject.getString("exception"));
+        }
+
+        if (exception && getType().equals("SYNTAX_ERROR")) {
+            throw new ConnectorException("Syntax error!");
+        }
+
+        if (exception && jsonObject == null) {
+            throw new ConnectorException("Empty response!");
+        }
     }
 
     public List<Column> getColumns() {
@@ -35,12 +51,28 @@ public class Result {
         return columns;
     }
 
-    public List<String> getStructure() {
+    public List<String> getStructureList() {
         if (!getType().equals("REST")) {
             throw new ConnectorException("The response type isn't 'REST'!");
         }
 
         return jsonObject.getJSONArray("structure").toList().stream().map(Object::toString).collect(Collectors.toList());
+    }
+
+    public String[] getStructureArray() {
+        if (!getType().equals("REST")) {
+            throw new ConnectorException("The response type isn't 'REST'!");
+        }
+
+        final String[] structure = new String[getStructureList().size()];
+        int index = 0;
+
+        for (String s : getStructureList()) {
+            structure[index] = s;
+            index++;
+        }
+
+        return structure;
     }
 
     public int getCode() {
