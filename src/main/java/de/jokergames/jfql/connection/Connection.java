@@ -12,6 +12,7 @@ import java.net.URL;
 
 /**
  * @author Janick
+ * @compatible MyJFQL v1.2.2 | 24-11-20
  */
 
 public class Connection {
@@ -65,10 +66,12 @@ public class Connection {
             throw new ConnectorException("Connection failed!");
         }
 
-        final JSONObject object = exec("#connect", false);
-
-        if (object == null)
+        try {
+            exec("#connect", true);
+        } catch (Exception ex) {
             throw new ConnectorException("Connection deny!");
+        }
+
     }
 
     public void disconnect() {
@@ -117,7 +120,12 @@ public class Connection {
             inputStream.close();
             connection.disconnect();
 
-            return new JSONObject(builder.toString());
+            final var build = builder.toString();
+
+            if (build.isEmpty() || !build.startsWith("{"))
+                return null;
+            else
+                return new JSONObject(builder.toString());
         } catch (Exception ex) {
             if (exception)
                 throw new ConnectorException(ex);
@@ -126,17 +134,17 @@ public class Connection {
         }
     }
 
-    public Result query(String query, String... replacers) {
-        for (String replace : replacers) {
-            query = query.replaceFirst("%", replace);
+    public Result query(String query, Object... replacers) {
+        for (Object replace : replacers) {
+            query = query.replaceFirst("%", replace.toString());
         }
 
         return new Result(exec(query, true));
     }
 
-    public Result query(String query, boolean exception, String... replacers) {
-        for (String replace : replacers) {
-            query = query.replaceFirst("%", replace);
+    public Result query(String query, boolean exception, Object... replacers) {
+        for (Object replace : replacers) {
+            query = query.replaceFirst("%", replace.toString());
         }
 
         return new Result(exec(query, exception), exception);
