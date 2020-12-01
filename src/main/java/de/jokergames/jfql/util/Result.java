@@ -23,16 +23,19 @@ public class Result {
     public Result(JSONObject jsonObject, boolean exception) {
         this.jsonObject = jsonObject;
 
+        if (!exception && jsonObject == null)
+            return;
+
+        if (exception && jsonObject == null) {
+            throw new ConnectorException("Empty response!");
+        }
+
         if (exception && getType().equals("BAD_METHOD")) {
             throw new ConnectorException(jsonObject.getString("exception"));
         }
 
         if (exception && getType().equals("SYNTAX_ERROR")) {
             throw new ConnectorException("Syntax error!");
-        }
-
-        if (exception && jsonObject == null) {
-            throw new ConnectorException("Empty response!");
         }
     }
 

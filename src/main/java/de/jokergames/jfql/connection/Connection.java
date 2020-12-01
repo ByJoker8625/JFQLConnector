@@ -17,6 +17,18 @@ import java.net.URL;
 
 public class Connection {
 
+    public static class SubQuery {
+        final Object[] replacers;
+
+        public SubQuery(Object... replacers) {
+            this.replacers = replacers;
+        }
+    }
+
+    public static SubQuery SubQuery(Object... replacers) {
+        return new SubQuery(replacers);
+    }
+
     private URL url;
     private String path;
     private User user;
@@ -134,16 +146,24 @@ public class Connection {
         }
     }
 
-    public Result query(String query, Object... replacers) {
-        for (Object replace : replacers) {
+    public Result query(String query) {
+        return new Result(exec(query, true));
+    }
+
+    public Result query(String query, boolean exception) {
+        return new Result(exec(query, exception), exception);
+    }
+
+    public Result query(String query, SubQuery subQuery) {
+        for (Object replace : subQuery.replacers) {
             query = query.replaceFirst("%", replace.toString());
         }
 
         return new Result(exec(query, true));
     }
 
-    public Result query(String query, boolean exception, Object... replacers) {
-        for (Object replace : replacers) {
+    public Result query(String query, boolean exception, SubQuery subQuery) {
+        for (Object replace : subQuery.replacers) {
             query = query.replaceFirst("%", replace.toString());
         }
 
