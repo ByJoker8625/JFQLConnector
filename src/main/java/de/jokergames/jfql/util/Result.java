@@ -48,7 +48,13 @@ public class Result {
         JSONArray answer = jsonObject.getJSONArray("answer");
 
         for (int j = 0; j < answer.length(); j++) {
-            columns.add(new Column(answer.getJSONObject(j)));
+            Object object = answer.get(j);
+
+            if (object instanceof JSONObject) {
+                columns.add(new Column(answer.getJSONObject(j)));
+            } else {
+                columns.add(new Column(object));
+            }
         }
 
         return columns;

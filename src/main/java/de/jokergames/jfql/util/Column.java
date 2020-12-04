@@ -11,16 +11,83 @@ import java.util.List;
 public class Column {
 
     private final JSONObject jsonObject;
+    private final Object content;
 
     public Column(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
+        this.content = null;
+    }
+
+    public Column(Object content) {
+        this.jsonObject = null;
+        this.content = content;
     }
 
     public long getCreation() {
+        if (jsonObject == null) {
+            return -1;
+        }
+
         return jsonObject.getLong("creation");
     }
 
+    public Object getObject() {
+        return content;
+    }
+
+    public String getString() {
+        if (getObject() == null) {
+            return null;
+        }
+
+        return getObject().toString();
+    }
+
+    public int getInteger() {
+        if (getString() == null) {
+            return -1;
+        }
+
+        return Integer.parseInt(getString());
+    }
+
+    public long getLong() {
+        if (getString() == null) {
+            return -1;
+        }
+
+        return Long.parseLong(getString());
+    }
+
+    public float getFloat() {
+        if (getString() == null) {
+            return -1;
+        }
+
+        return Float.parseFloat(getString());
+    }
+
+    public double getDouble() {
+        if (getString() == null) {
+            return -1;
+        }
+
+        return Double.parseDouble(getString());
+    }
+
+    public short getShort() {
+        if (getString() == null) {
+            return -1;
+        }
+
+        return Short.parseShort(getString());
+    }
+
     public Object getObject(String key) {
+        if (jsonObject == null) {
+            return -1;
+        }
+
         return jsonObject.getJSONObject("content").get(key);
     }
 
@@ -61,7 +128,7 @@ public class Column {
             return -1;
         }
 
-        return Double.parseDouble(key);
+        return Double.parseDouble(getString(key));
     }
 
     public short getShort(String key) {
