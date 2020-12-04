@@ -140,15 +140,32 @@ public class Column {
     }
 
     public List<Object> getList(String key) {
+        if (jsonObject == null) {
+            return null;
+        }
+
         return jsonObject.getJSONObject("content").getJSONArray(key).toList();
     }
 
     public boolean isEmpty() {
+        if (jsonObject == null) {
+            return content == null;
+        }
+
         return jsonObject.isEmpty();
     }
 
     @Deprecated
     public JSONObject getJsonObject() {
         return jsonObject;
+    }
+
+    @Override
+    public String toString() {
+        if (jsonObject == null) {
+            return content.toString();
+        } else {
+            return jsonObject.toString();
+        }
     }
 }
