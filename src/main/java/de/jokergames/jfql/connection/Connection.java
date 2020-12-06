@@ -12,72 +12,27 @@ import java.net.URL;
 
 /**
  * @author Janick
- * @compatible MyJFQL v1.2.2 | 24-11-20
+ * @compatible MyJFQL v1.2.3 | 6-12-2020
  */
 
 public class Connection {
 
     private URL url;
-    private String path;
-    private User user;
+    private final String host;
+    private final User user;
 
-    public Connection(String path, User user) {
-        this.path = path;
+    public Connection(String host, User user) {
+        this.host = host;
         this.user = user;
     }
 
-    public Connection(String path) {
-        this(path, null);
-    }
-
-    public Connection(User user) {
-        this(null, user);
-    }
-
-    public Connection() {
-        this(null, null);
-    }
-
-    public static String createURL(String address) {
-        return createURL(address, 2291);
-    }
-
-    public static String createURL(String address, int port) {
-        return "http://" + address + ":" + port + "/query";
-    }
-
     public void connect() {
-        connect(path, user);
-    }
-
-    public void connect(String path) {
-        connect(path, user);
-    }
-
-    public void connect(User user) {
-        connect(path, user);
-    }
-
-    public void connect(String path, User user) {
-        try {
-            this.url = new URL(path);
-            this.user = user;
-        } catch (Exception ex) {
-            throw new ConnectorException("Connection failed!");
-        }
-
         try {
             exec("#connect", true);
         } catch (Exception ex) {
             throw new ConnectorException("Connection deny!");
         }
 
-    }
-
-    public void disconnect() {
-        this.url = null;
-        this.path = null;
-        this.user = null;
     }
 
     private JSONObject exec(String exec, boolean exception) {
@@ -164,19 +119,17 @@ public class Connection {
         return new Result(exec(query, exception), exception);
     }
 
+    public boolean isConnected() {
+        return url != null;
+    }
+
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public String getHost() {
+        return host;
     }
 
-    public boolean isConnected() {
-        return url != null && user != null;
-    }
 
-    public URL getUrl() {
-        return url;
-    }
 }
