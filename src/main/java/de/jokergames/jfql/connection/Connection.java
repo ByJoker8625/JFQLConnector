@@ -66,10 +66,7 @@ public class Connection {
             throw new ConnectorException("Connection failed!");
         }
 
-        final JSONObject object = exec("#connect", false);
-
-        if (object == null)
-            throw new ConnectorException("Connection deny!");
+        exec("#connect", true);
     }
 
     private JSONObject exec(String exec, boolean exception) {
