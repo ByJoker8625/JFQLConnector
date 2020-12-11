@@ -18,21 +18,58 @@ import java.net.URL;
 public class Connection {
 
     private URL url;
-    private final String host;
-    private final User user;
+    private String host;
+    private User user;
 
     public Connection(String host, User user) {
         this.host = host;
         this.user = user;
     }
 
+    public Connection(String host) {
+        this(host, null);
+    }
+
+    public Connection(User user) {
+        this(null, user);
+    }
+
+    public Connection() {
+        this(null, null);
+    }
+
+    public static String createURL(String address) {
+        return createURL(address, 2291);
+    }
+
+    public static String createURL(String address, int port) {
+        return "http://" + address + ":" + port + "/query";
+    }
+
     public void connect() {
+        connect(host, user);
+    }
+
+    public void connect(String path) {
+        connect(path, user);
+    }
+
+    public void connect(User user) {
+        connect(host, user);
+    }
+
+    public void connect(String path, User user) {
         try {
-            exec("#connect", true);
+            this.url = new URL(path);
+            this.user = user;
         } catch (Exception ex) {
-            throw new ConnectorException("Connection deny!");
+            throw new ConnectorException("Connection failed!");
         }
 
+        final JSONObject object = exec("#connect", false);
+
+        if (object == null)
+            throw new ConnectorException("Connection deny!");
     }
 
     private JSONObject exec(String exec, boolean exception) {
