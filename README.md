@@ -7,9 +7,10 @@ client.
 ### Java
 
 ```java
-//Create connection
-public class ConnectorExample5 {
+
+public class ConnectorExample {
     public static void main(String[] args) {
+        //Create connection
         Connection connection = new Connection("http://localhost:2291/query", new User("root", "pw"));
         connection.connect();
 
