@@ -1,23 +1,28 @@
 # JFQLConnector
 
-Mit dem JFQLConnector kannst du dich mein dem MyJFQL DMBS verbinden. Support gibt es für JavaScript, Python und Java. Du
-kannst dir aber selbst einen Connector mit einer anderen sprache wie C# schreiben. Die sprache braucht lediglich JSON
-Support und einen HTTP-Client.
+With the JFQLConnector you can connect to the MyJFQL DMBS. There is support for JavaScript, Python and Java. You can,
+however, write a connector yourself in another language such as C #. The language only needs JSON support and an HTTP
+client.
 
 ### Java
 
 ```java
 //Create connection
-Connection connection = new Connection("http://localhost:2291/query",new User("root","pw"));
-connection.connect();
+public class ConnectorExample5 {
+    public static void main(String[] args) {
+        Connection connection = new Connection("http://localhost:2291/query", new User("root", "pw"));
+        connection.connect();
 
-connection.query("CREATE DATABASE Example", false);
-connection.query("USE DATABASE Example");
-connection.query("CREATE TABLE Users STRUCTURE Name Password Email", false);
+        connection.query("CREATE DATABASE Example", false);
+        connection.query("USE DATABASE Example");
+        connection.query("CREATE TABLE Users STRUCTURE Name Password Email", false);
 
-//Select values
-Result result=connection.query("SELECT VALUE * FROM %","Users"); 
-System.out.println(result);
+        //Select values
+        Result result = connection.query("SELECT VALUE * FROM %", "Users");
+        System.out.println(result);
+    }
+}
+
 ```
 
 » [Connector.jar](http://jokergames.ddnss.de/lib/download/JFQLConnector.jar)
