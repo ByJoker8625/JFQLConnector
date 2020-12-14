@@ -8,7 +8,7 @@ Support und einen HTTP-Client.
 
 ```java
 //Create connection
-Connection connection=new Connection("http://localhost:2291/query",new User("root","pw"));
+Connection connection = new Connection("http://localhost:2291/query",new User("root","pw"));
 connection.connect();
 
 connection.query("CREATE DATABASE Example", false);
