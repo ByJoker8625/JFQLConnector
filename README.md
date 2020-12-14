@@ -8,16 +8,16 @@ Support und einen HTTP-Client.
 
 ```java
 //Create connection
-Connection connection = new Connection("http://localhost:2291/query",new User("root","pw"));
-        connection.connect();
+Connection connection=new Connection("http://localhost:2291/query",new User("root","pw"));
+connection.connect();
 
-        connection.query("CREATE DATABASE Example",false);
-        connection.query("USE DATABASE Example");
-        connection.query("CREATE TABLE Users STRUCTURE Name Password Email",false);
+connection.query("CREATE DATABASE Example", false);
+connection.query("USE DATABASE Example");
+connection.query("CREATE TABLE Users STRUCTURE Name Password Email", false);
 
 //Select values
-        Result result=connection.query("SELECT VALUE * FROM %","Users");
-        System.out.println(result);
+Result result=connection.query("SELECT VALUE * FROM %","Users"); 
+System.out.println(result);
 ```
 
 » [Connector.jar](http://jokergames.ddnss.de/lib/download/JFQLConnector.jar)

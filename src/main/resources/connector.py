@@ -1,5 +1,7 @@
-import requests
 import json
+
+import requests
+
 
 class User:
 
@@ -18,6 +20,7 @@ class User:
 
     def get_password(self):
         return self.password
+
 
 class Connection:
 
