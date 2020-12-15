@@ -4,11 +4,11 @@ With the [JFQLConnector](http://jokergames.ddnss.de/documentation/connector/down
 however, write a connector yourself in another language such as C #. The language only needs JSON support and an HTTP
 client.
 
-### License:
+### License
 
 Copyright (c) [JokerGames](http://jokergames.ddnss.de). All rights reserved.
 
-#### Java
+### Java
 
 ```java
 
@@ -30,7 +30,7 @@ public class ConnectorExample {
 
 ```
 
-#### Python:
+### Python
 
 ```python
 # Create connection
@@ -45,7 +45,7 @@ result = connection.query("SELECT VALUE * FROM Users")
 print(result)
 ```
 
-#### JavaScript
+### JavaScript
 
 ```javascript
 //Create connection
