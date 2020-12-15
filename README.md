@@ -1,10 +1,14 @@
 # JFQLConnector
 
-With the JFQLConnector you can connect to the MyJFQL DMBS. There is support for JavaScript, Python and Java. You can,
+With the [JFQLConnector](http://jokergames.ddnss.de/documentation/connector/download) you can connect to the MyJFQL DMBS. There is support for JavaScript, Python and Java. You can,
 however, write a connector yourself in another language such as C #. The language only needs JSON support and an HTTP
 client.
 
-### Java
+### License:
+
+Copyright (c) [JokerGames](http://jokergames.ddnss.de). All rights reserved.
+
+#### Java
 
 ```java
 
@@ -26,9 +30,7 @@ public class ConnectorExample {
 
 ```
 
-» [Connector.jar](http://jokergames.ddnss.de/lib/download/JFQLConnector.jar)
-
-### Python:
+#### Python:
 
 ```python
 # Create connection
@@ -43,9 +45,7 @@ result = connection.query("SELECT VALUE * FROM Users")
 print(result)
 ```
 
-» [connector.py](http://jokergames.ddnss.de/lib/download/connector.py)
-
-### JavaScript
+#### JavaScript
 
 ```javascript
 //Create connection
@@ -60,7 +60,5 @@ let response
 connection.query('SELECT VALUE * FROM Users', (json) => response = json)
 console.log(response)
 ```
-
-» [connector.js](http://jokergames.ddnss.de/lib/download/connector.js)
 
 
