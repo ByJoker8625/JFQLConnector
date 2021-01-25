@@ -1,4 +1,4 @@
-package de.jokergames.jfql.util;
+package org.jokergames.jfql.util;
 
 /**
  * @author Janick

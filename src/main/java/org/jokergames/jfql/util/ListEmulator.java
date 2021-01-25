@@ -1,4 +1,4 @@
-package de.jokergames.jfql.util;
+package org.jokergames.jfql.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,16 +27,16 @@ public class ListEmulator {
         this(Arrays.asList(objects));
     }
 
-    public void setComponents(List<Object> components) {
-        this.components = components;
-    }
-
     public ListEmulator(List<Object> components) {
         this.components = components;
     }
 
     public List<Object> getComponents() {
         return components;
+    }
+
+    public void setComponents(List<Object> components) {
+        this.components = components;
     }
 
     @Override

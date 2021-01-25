@@ -1,4 +1,4 @@
-package de.jokergames.jfql.util;
+package org.jokergames.jfql.util;
 
 import java.util.ArrayList;
 import java.util.List;

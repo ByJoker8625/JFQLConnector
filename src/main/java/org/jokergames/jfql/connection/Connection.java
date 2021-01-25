@@ -1,8 +1,8 @@
-package de.jokergames.jfql.connection;
+package org.jokergames.jfql.connection;
 
-import de.jokergames.jfql.exception.ConnectorException;
-import de.jokergames.jfql.util.Result;
-import de.jokergames.jfql.util.User;
+import org.jokergames.jfql.exception.ConnectorException;
+import org.jokergames.jfql.util.Result;
+import org.jokergames.jfql.util.User;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -18,7 +18,7 @@ import java.net.URL;
 public class Connection {
 
     private URL url;
-    private String host;
+    private final String host;
     private User user;
 
     public Connection(String host, User user) {
