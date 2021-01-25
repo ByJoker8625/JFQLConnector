@@ -4,10 +4,6 @@ With the [JFQLConnector](http://jokergames.ddnss.de/documentation/connector/down
 DMBS. There is support for JavaScript, Python and Java. You can, however, write a connector yourself in another language
 such as C #. The language only needs JSON support and an HTTP client.
 
-### License
-
-Copyright (c) [JokerGames](http://jokergames.ddnss.de). All rights reserved.
-
 ### Java
 
 ```java
@@ -61,4 +57,7 @@ connection.query('SELECT VALUE * FROM Users', (json) => response = json)
 console.log(response)
 ```
 
+### License
+
+All files on this repository are subject to the MIT license. Please read the [LICENSE](https://github.com/joker-games/JFQLConnector/blob/master/LICENSE) file at the root of the project.
 
