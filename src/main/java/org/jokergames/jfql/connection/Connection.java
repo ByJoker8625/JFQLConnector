@@ -17,8 +17,8 @@ import java.net.URL;
 
 public class Connection {
 
-    private URL url;
     private final String host;
+    private URL url;
     private User user;
 
     public Connection(String host, User user) {
