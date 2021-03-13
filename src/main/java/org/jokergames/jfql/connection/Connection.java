@@ -12,7 +12,6 @@ import java.net.URL;
 
 /**
  * @author Janick
- * @compatible MyJFQL v1.2.3 | 6-12-2020
  */
 
 public class Connection {
@@ -58,9 +57,9 @@ public class Connection {
         connect(host, user);
     }
 
-    public void connect(String path, User user) {
+    public void connect(String host, User user) {
         try {
-            this.url = new URL(path);
+            this.url = new URL(formatHost(host));
             this.user = user;
         } catch (Exception ex) {
             throw new ConnectorException("Connection failed!");
@@ -121,6 +120,18 @@ public class Connection {
             else
                 return null;
         }
+    }
+
+    private String formatHost(String host) {
+        if (host.startsWith("myjfql:")) {
+            host = "http://" + host.replace("myjfql:", "") + ":2291/query";
+        }
+
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host;
+        }
+
+        return host;
     }
 
     public Result query(String query) {

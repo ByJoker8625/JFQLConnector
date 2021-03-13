@@ -75,6 +75,14 @@ public class Column {
         return Double.parseDouble(getString());
     }
 
+    public boolean getBoolean(){
+        if (getString() == null) {
+            return false;
+        }
+
+        return Boolean.parseBoolean(getString());
+    }
+
     public short getShort() {
         if (getString() == null) {
             return -1;
@@ -137,6 +145,14 @@ public class Column {
         }
 
         return Short.parseShort(getString(key));
+    }
+
+    public boolean getBoolean(String key){
+        if (getString(key) == null) {
+            return false;
+        }
+
+        return Boolean.parseBoolean(getString(key));
     }
 
     public List<Object> getList(String key) {
