@@ -90,17 +90,13 @@ public class Column {
     }
 
     public String getString(String key) {
-        key = encryption.getProtocol().decrypt(key, encryption.getKey());
+        String encryptedKey = encryption.getProtocol().encrypt(key, encryption.getKey());
 
         if (jsonObject == null) {
             return null;
         }
 
-        if (jsonObject.isNull(key)) {
-            return null;
-        }
-
-        return encryption.getProtocol().decrypt(jsonObject.get(key).toString(), encryption.getKey());
+        return encryption.getProtocol().decrypt(jsonObject.getJSONObject("content").get(encryptedKey).toString(), encryption.getKey());
     }
 
     public int getInteger(String key) {
@@ -171,8 +167,9 @@ public class Column {
         } else {
             JSONObject jsonObject = new JSONObject();
 
-            for (String key : this.jsonObject.keySet()) {
-                jsonObject.put(encryption.getProtocol().decrypt(key, encryption.getKey()), getString(key));
+            for (String key : this.jsonObject.getJSONObject("content").keySet()) {
+                String decryptedKey = encryption.getProtocol().decrypt(key, encryption.getKey());
+                jsonObject.put(decryptedKey, getString(decryptedKey));
             }
 
             return jsonObject.toString();

@@ -68,7 +68,7 @@ public class Result {
             throw new ConnectorException("The response type isn't 'REST'!");
         }
 
-        return jsonObject.getJSONArray("structure").toList().stream().map(Object::toString).collect(Collectors.toList());
+        return jsonObject.getJSONArray("structure").toList().stream().map(Object::toString).map(toString -> encryption.getProtocol().decrypt(toString, encryption.getKey())).collect(Collectors.toList());
     }
 
     public String[] getStructureArray() {
