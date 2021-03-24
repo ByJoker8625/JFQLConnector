@@ -1,5 +1,7 @@
 package org.jokergames.jfql.connection;
 
+import org.jokergames.jfql.encryption.Encryption;
+import org.jokergames.jfql.encryption.NoneEncryption;
 import org.jokergames.jfql.exception.ConnectorException;
 import org.jokergames.jfql.util.Result;
 import org.jokergames.jfql.util.User;
@@ -9,6 +11,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Janick
@@ -19,22 +23,35 @@ public class Connection {
     private final String host;
     private URL url;
     private User user;
+    private Encryption encryption;
 
-    public Connection(String host, User user) {
+    private Map<String, String> cache;
+
+    public Connection(String host, User user, Encryption encryption) {
         this.host = host;
         this.user = user;
+        this.encryption = encryption;
+        this.cache = new HashMap<>();
+    }
+
+    public Connection(String host, User user) {
+        this(host, user, new NoneEncryption());
     }
 
     public Connection(String host) {
-        this(host, null);
+        this(host, null, new NoneEncryption());
     }
 
     public Connection(User user) {
-        this(null, user);
+        this(null, user, new NoneEncryption());
+    }
+
+    public Connection(Encryption encryption) {
+        this(null, null, encryption);
     }
 
     public Connection() {
-        this(null, null);
+        this(null, null, new NoneEncryption());
     }
 
     public static String createURL(String address) {
@@ -77,8 +94,23 @@ public class Connection {
 
         {
             JSONObject auth = new JSONObject();
-            auth.put("user", user.getName());
-            auth.put("password", user.getPassword());
+
+            if (cache.containsKey("user")) {
+                auth.put("user", cache.get("user"));
+            } else {
+                String encrypted = encryption.getProtocol().encrypt(user.getName(), encryption.getKey());
+                cache.put("user", encrypted);
+                auth.put("user", encrypted);
+            }
+
+            if (cache.containsKey("password")) {
+                auth.put("password", cache.get("password"));
+            } else {
+                String encrypted = encryption.getProtocol().encrypt(user.getPassword(), encryption.getKey());
+                cache.put("password", encrypted);
+                auth.put("password", encrypted);
+            }
+
             jsonObject.put("auth", auth);
         }
 
@@ -123,23 +155,33 @@ public class Connection {
     }
 
     private String formatHost(String host) {
-        if (host.startsWith("myjfql:")) {
-            host = "http://" + host.replace("myjfql:", "") + ":2291/query";
+        if (!host.contains("?")) {
+            if (host.startsWith("myjfql:")) {
+                host = "http://" + host.replace("myjfql:", "") + ":2291/query";
+            }
+
+            if (!host.startsWith("http://") && !host.startsWith("https://")) {
+                host = "http://" + host;
+            }
+
+            return host;
         }
 
-        if (!host.startsWith("http://") && !host.startsWith("https://")) {
-            host = "http://" + host;
+        String[] strings = host.replace("?", "%").split("%");
+
+        if (strings.length != 2) {
+            return host;
         }
 
-        return host;
+        return formatHost(strings[0]) + "?" + strings[1];
     }
 
     public Result query(String query) {
-        return new Result(exec(query, true));
+        return new Result(encryption, exec(query, true));
     }
 
     public Result query(String query, boolean exception) {
-        return new Result(exec(query, exception), exception);
+        return new Result(encryption, exec(query, exception), exception);
     }
 
     public Result query(String query, Object... replacers) {
@@ -150,7 +192,7 @@ public class Connection {
                 query = query.replaceFirst("%", replace.toString());
         }
 
-        return new Result(exec(query, true));
+        return new Result(encryption, exec(query, true));
     }
 
     public Result query(String query, boolean exception, Object... replacers) {
@@ -161,11 +203,19 @@ public class Connection {
                 query = query.replaceFirst("%", replace.toString());
         }
 
-        return new Result(exec(query, exception), exception);
+        return new Result(encryption, exec(query, exception), exception);
     }
 
     public boolean isConnected() {
         return url != null;
+    }
+
+    public void setEncryption(Encryption encryption) {
+        this.encryption = encryption;
+    }
+
+    public Encryption getEncryption() {
+        return encryption;
     }
 
     public User getUser() {

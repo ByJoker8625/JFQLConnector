@@ -1,4 +1,4 @@
-var Connection = function (url, user, password) {
+const Connection = function (url, user, password) {
 
     this.query = function (query, result) {
         const jsonObject = {
@@ -10,6 +10,14 @@ var Connection = function (url, user, password) {
         }
 
         const request = new XMLHttpRequest();
+
+        if (url.startsWith("myjfql:")) {
+            url = "http://" + url.replace("myjfql:", "") + ":2291/query"
+        }
+
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://" + url
+        }
 
         request.onreadystatechange = () => {
             var response = request.responseText

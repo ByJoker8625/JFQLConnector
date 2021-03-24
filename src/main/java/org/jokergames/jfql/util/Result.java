@@ -1,5 +1,6 @@
 package org.jokergames.jfql.util;
 
+import org.jokergames.jfql.encryption.Encryption;
 import org.jokergames.jfql.exception.ConnectorException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,13 +16,15 @@ import java.util.stream.Collectors;
 public class Result {
 
     private final JSONObject jsonObject;
+    private final Encryption encryption;
 
-    public Result(JSONObject jsonObject) {
-        this(jsonObject, true);
+    public Result(Encryption encryption, JSONObject jsonObject) {
+        this(encryption, jsonObject, true);
     }
 
-    public Result(JSONObject jsonObject, boolean exception) {
+    public Result(Encryption encryption, JSONObject jsonObject, boolean exception) {
         this.jsonObject = jsonObject;
+        this.encryption = encryption;
 
         if (!exception && jsonObject == null)
             return;
@@ -51,9 +54,9 @@ public class Result {
             Object object = answer.get(j);
 
             if (object instanceof JSONObject) {
-                columns.add(new Column(answer.getJSONObject(j)));
+                columns.add(new Column(encryption, answer.getJSONObject(j)));
             } else {
-                columns.add(new Column(object));
+                columns.add(new Column(encryption, object));
             }
         }
 
@@ -90,6 +93,10 @@ public class Result {
 
     public String getType() {
         return jsonObject.getString("type");
+    }
+
+    public Encryption getEncryption() {
+        return encryption;
     }
 
     @Deprecated

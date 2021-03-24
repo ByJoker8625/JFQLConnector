@@ -1,7 +1,5 @@
 import json
-
 import requests
-
 
 class User:
 
@@ -38,8 +36,19 @@ class Connection:
         }
         jsonObject = str(jsonObject)
 
-        request = requests.post(self.host, jsonObject)
+        request = requests.post(self.format_host(self.host), jsonObject)
         return json.loads(request.text)
+
+    def format_host(self, host):
+        newHost = host
+
+        if (host.startswith("myjfql:")):
+            newHost = "http://" + host.replace("myjfql:", "") + ":2291/query"
+
+        if (not host.startswith("http://") and not host.startswith("https://")):
+            newHost = "http://" + host
+
+        return newHost
 
     def get_user(self):
         return self.user
