@@ -17,12 +17,13 @@ public class SocketConnection {
     private final String host;
     private final Random random;
     private final List<JSONObject> responses;
+    private final Encryption encryption;
+
     private WebSocket webSocket;
     private User user;
-    private Encryption encryption;
     private boolean connectionAccepted;
 
-    public SocketConnection(String host, User user) {
+    public SocketConnection(final String host, final User user) {
         this.random = new Random();
         this.host = host;
         this.user = user;
@@ -31,11 +32,11 @@ public class SocketConnection {
         this.connectionAccepted = false;
     }
 
-    public SocketConnection(String host) {
+    public SocketConnection(final String host) {
         this(host, null);
     }
 
-    public SocketConnection(User user) {
+    public SocketConnection(final User user) {
         this(null, user);
     }
 
@@ -43,11 +44,11 @@ public class SocketConnection {
         this(null, null);
     }
 
-    public static String createURL(String address) {
+    public static String createURL(final String address) {
         return createURL(address, 2291);
     }
 
-    public static String createURL(String address, int port) {
+    public static String createURL(final String address, final int port) {
         return "ws://" + address + ":" + port + "/query";
     }
 
@@ -55,15 +56,15 @@ public class SocketConnection {
         connect(host, user);
     }
 
-    public void connect(String path) {
+    public void connect(final String path) {
         connect(path, user);
     }
 
-    public void connect(User user) {
+    public void connect(final User user) {
         connect(host, user);
     }
 
-    public void connect(String host, User user) {
+    public void connect(final String host, final User user) {
         try {
             this.webSocket = new WebSocketFactory()
                     .setConnectionTimeout(5000)
@@ -82,7 +83,7 @@ public class SocketConnection {
                                 return;
                             }
 
-                            if (response.getInt("id") == -1) {
+                            if (response.getString("id").equals("-1")) {
                                 throw new ConnectorException("Unassigned response!");
                             }
 
@@ -98,7 +99,7 @@ public class SocketConnection {
                     .connect();
 
             {
-                JSONObject jsonObject = new JSONObject();
+                final JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user", user.getName());
                 jsonObject.put("password", user.getPassword());
                 jsonObject.put("id", -1);
@@ -120,25 +121,25 @@ public class SocketConnection {
         webSocket.sendClose();
     }
 
-    private JSONObject exec(String exec, boolean exception) {
+    private JSONObject exec(final String exec, final boolean exception) {
         if (!isConnectionAccepted()) {
             throw new ConnectorException("Client isn't connected!");
         }
 
         try {
-            final int id = generate();
+            final String id = generate();
 
-            JSONObject request = new JSONObject();
+            final JSONObject request = new JSONObject();
             request.put("id", id);
             request.put("query", exec);
 
             webSocket.sendText(request.toString());
 
-            while (responses.stream().filter(response -> response.getInt("id") == id).findFirst().orElse(null) == null)
+            while (responses.stream().filter(response -> response.getString("id").equals(id)).findFirst().orElse(null) == null)
                 ;
 
-            final JSONObject response = responses.stream().filter(resp -> resp.getInt("id") == id).findFirst().orElse(null);
-            responses.removeIf(resp -> resp.getInt("id") == id);
+            final JSONObject response = responses.stream().filter(resp -> resp.getString("id").equals(id)).findFirst().orElse(null);
+            responses.removeIf(resp -> resp.getString("id").equals(id));
 
             return response;
         } catch (Exception ex) {
@@ -152,36 +153,26 @@ public class SocketConnection {
     }
 
     private String formatHost(String host) {
-        if (!host.contains("?")) {
-            if (host.startsWith("myjfql:")) {
-                host = "ws://" + host.replace("myjfql:", "") + ":2291/wsq";
-            }
-
-            if (!host.startsWith("ws://") && !host.startsWith("wss://")) {
-                host = "ws://" + host;
-            }
-
-            return host;
+        if (host.startsWith("myjfql:")) {
+            host = "ws://" + host.replace("myjfql:", "") + ":2291/query";
         }
 
-        String[] strings = host.replace("?", "%").split("%");
-
-        if (strings.length != 2) {
-            return host;
+        if (!host.startsWith("ws://") && !host.startsWith("wss://")) {
+            host = "ws://" + host;
         }
 
-        return formatHost(strings[0]) + "?" + strings[1];
+        return host;
     }
 
-    public Result query(String query) {
+    public Result query(final String query) {
         return new Result(encryption, exec(query, true));
     }
 
-    public Result query(String query, boolean exception) {
+    public Result query(final String query, final boolean exception) {
         return new Result(encryption, exec(query, exception), exception);
     }
 
-    public Result query(String query, Object... replacers) {
+    public Result query(String query, final Object... replacers) {
         for (Object replace : replacers) {
             if (replace == null)
                 query = query.replaceFirst("%", "null");
@@ -192,7 +183,7 @@ public class SocketConnection {
         return new Result(encryption, exec(query, true));
     }
 
-    public Result query(String query, boolean exception, Object... replacers) {
+    public Result query(String query, final boolean exception, final Object... replacers) {
         for (Object replace : replacers) {
             if (replace == null)
                 query = query.replaceFirst("%", "null");
@@ -211,10 +202,6 @@ public class SocketConnection {
         return encryption;
     }
 
-    public void setEncryption(Encryption encryption) {
-        this.encryption = encryption;
-    }
-
     public User getUser() {
         return user;
     }
@@ -223,14 +210,14 @@ public class SocketConnection {
         return host;
     }
 
-    private int generate() {
-        StringBuilder generate = new StringBuilder();
+    private String generate() {
+        final StringBuilder generate = new StringBuilder();
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 14; i++) {
             generate.append(random.nextInt(9));
         }
 
-        return Integer.parseInt(generate.toString());
+        return generate.toString();
     }
 
 }
