@@ -33,8 +33,12 @@ public class Result {
             throw new ConnectorException("Empty response!");
         }
 
-        if (exception && getType().equals("BAD_METHOD")) {
+        if (exception && getType().equals("ERROR")) {
             throw new ConnectorException(jsonObject.getString("exception"));
+        }
+
+        if (exception && getType().equals("FORBIDDEN")) {
+            throw new ConnectorException("You don't have the permissions to do that!");
         }
 
         if (exception && getType().equals("SYNTAX_ERROR")) {
@@ -97,6 +101,11 @@ public class Result {
 
     public Encryption getEncryption() {
         return encryption;
+    }
+
+    @Override
+    public String toString() {
+        return jsonObject.toString();
     }
 
     @Deprecated

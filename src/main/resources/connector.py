@@ -1,6 +1,7 @@
 import json
 import requests
 
+
 class User:
 
     def __init__(self, name, password):

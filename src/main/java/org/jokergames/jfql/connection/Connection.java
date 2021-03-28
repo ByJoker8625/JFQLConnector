@@ -21,11 +21,10 @@ import java.util.Map;
 public class Connection {
 
     private final String host;
+    private final Map<String, String> cache;
     private URL url;
     private User user;
     private Encryption encryption;
-
-    private Map<String, String> cache;
 
     public Connection(String host, User user, Encryption encryption) {
         this.host = host;
@@ -142,6 +141,8 @@ public class Connection {
 
             final var build = builder.toString();
 
+            System.out.println(build + " |0");
+
             if (build.isEmpty() || !build.startsWith("{"))
                 return null;
             else
@@ -210,12 +211,12 @@ public class Connection {
         return url != null;
     }
 
-    public void setEncryption(Encryption encryption) {
-        this.encryption = encryption;
-    }
-
     public Encryption getEncryption() {
         return encryption;
+    }
+
+    public void setEncryption(Encryption encryption) {
+        this.encryption = encryption;
     }
 
     public User getUser() {
