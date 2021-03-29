@@ -64,10 +64,14 @@ public class SocketConnection {
         connect(host, user);
     }
 
-    public void connect(final String host, final User user) {
+    private void connect(final String host, final User user, final int delay) {
+        if (connectionAccepted) {
+            throw new ConnectorException("Client is already connected!");
+        }
+
         try {
             this.webSocket = new WebSocketFactory()
-                    .setConnectionTimeout(5000)
+                    .setConnectionTimeout(delay)
                     .createSocket(formatHost(host))
                     .addListener(new WebSocketAdapter() {
                         @Override
@@ -79,6 +83,7 @@ public class SocketConnection {
                                     throw new ConnectorException("Wrong user data!");
                                 }
 
+                                System.out.println("connected");
                                 connectionAccepted = true;
                                 return;
                             }
@@ -98,31 +103,49 @@ public class SocketConnection {
                     .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE)
                     .connect();
 
+
             {
                 final JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user", user.getName());
                 jsonObject.put("password", user.getPassword());
-                jsonObject.put("id", -1);
+                jsonObject.put("id", "-1");
                 webSocket.sendText(jsonObject.toString());
             }
 
             this.user = user;
+            webSocket.setPingInterval(30 * 1000);
         } catch (Exception ex) {
             throw new ConnectorException("Connection failed!");
         }
 
     }
 
+    public void connect(final String host, final User user) {
+        connect(host, user, 5000);
+    }
+
     public void disconnect() {
-        if (!isConnectionAccepted()) {
+        if (!isConnected()) {
             throw new ConnectorException("Client isn't connected!");
         }
 
+        connectionAccepted = false;
+
+        if (webSocket == null) {
+            return;
+        }
+
+        if (!webSocket.isOpen()) {
+            webSocket = null;
+            return;
+        }
+
+        webSocket.disconnect();
         webSocket.sendClose();
     }
 
     private JSONObject exec(final String exec, final boolean exception) {
-        if (!isConnectionAccepted()) {
+        if (!isConnected()) {
             throw new ConnectorException("Client isn't connected!");
         }
 
@@ -135,16 +158,26 @@ public class SocketConnection {
 
             webSocket.sendText(request.toString());
 
-            while (responses.stream().filter(response -> response.getString("id").equals(id)).findFirst().orElse(null) == null)
-                ;
+            while (webSocket.isOpen()) {
+                if (responses.stream().filter(response -> response.getString("id").equals(id)).findFirst().orElse(null) != null)
+                    break;
+            }
+
+            if (!webSocket.isOpen()) {
+                this.reconnect();
+
+                while (!connectionAccepted) {
+                    System.out.println("[JFQLConnector] Reconnecting to '" + host + "'...");
+                }
+
+                return exec(exec, exception);
+            }
 
             final JSONObject response = responses.stream().filter(resp -> resp.getString("id").equals(id)).findFirst().orElse(null);
             responses.removeIf(resp -> resp.getString("id").equals(id));
 
             return response;
         } catch (Exception ex) {
-            ex.printStackTrace();
-
             if (exception)
                 throw new ConnectorException(ex);
             else
@@ -152,16 +185,24 @@ public class SocketConnection {
         }
     }
 
-    private String formatHost(String host) {
+    private void reconnect() {
+        System.out.println("reconnecting");
+        disconnect();
+        connect(host, user, 60 * 2 * 1000);
+    }
+
+    private String formatHost(final String host) {
+        String formatted = host;
+
         if (host.startsWith("myjfql:")) {
-            host = "ws://" + host.replace("myjfql:", "") + ":2291/query";
+            formatted = "ws://" + host.replace("myjfql:", "") + ":2291/query";
         }
 
         if (!host.startsWith("ws://") && !host.startsWith("wss://")) {
-            host = "ws://" + host;
+            formatted = "ws://" + host;
         }
 
-        return host;
+        return formatted;
     }
 
     public Result query(final String query) {
@@ -194,8 +235,8 @@ public class SocketConnection {
         return new Result(encryption, exec(query, exception), exception);
     }
 
-    public boolean isConnectionAccepted() {
-        return webSocket != null;
+    public boolean isConnected() {
+        return connectionAccepted;
     }
 
     public Encryption getEncryption() {
