@@ -65,7 +65,7 @@ public class SocketConnection {
     }
 
     private void connect(final String host, final User user, final int delay) {
-        if (connectionAccepted) {
+        if (isConnected()) {
             throw new ConnectorException("Client is already connected!");
         }
 
@@ -83,7 +83,6 @@ public class SocketConnection {
                                     throw new ConnectorException("Wrong user data!");
                                 }
 
-                                System.out.println("connected");
                                 connectionAccepted = true;
                                 return;
                             }
@@ -103,7 +102,6 @@ public class SocketConnection {
                     .addExtension(WebSocketExtension.PERMESSAGE_DEFLATE)
                     .connect();
 
-
             {
                 final JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user", user.getName());
@@ -113,7 +111,6 @@ public class SocketConnection {
             }
 
             this.user = user;
-            webSocket.setPingInterval(30 * 1000);
         } catch (Exception ex) {
             throw new ConnectorException("Connection failed!");
         }
@@ -130,24 +127,30 @@ public class SocketConnection {
         }
 
         connectionAccepted = false;
+        System.out.println(0);
 
         if (webSocket == null) {
+            System.out.println(1);
             return;
         }
 
         if (!webSocket.isOpen()) {
             webSocket = null;
+            System.out.println(2);
             return;
         }
 
-        webSocket.disconnect();
+        System.out.println(3);
+
         webSocket.sendClose();
+        webSocket.disconnect();
     }
 
     private JSONObject exec(final String exec, final boolean exception) {
         if (!isConnected()) {
             throw new ConnectorException("Client isn't connected!");
         }
+
 
         try {
             final String id = generate();
@@ -159,6 +162,7 @@ public class SocketConnection {
             webSocket.sendText(request.toString());
 
             while (webSocket.isOpen()) {
+                System.out.println("is open");
                 if (responses.stream().filter(response -> response.getString("id").equals(id)).findFirst().orElse(null) != null)
                     break;
             }
@@ -186,7 +190,6 @@ public class SocketConnection {
     }
 
     private void reconnect() {
-        System.out.println("reconnecting");
         disconnect();
         connect(host, user, 60 * 2 * 1000);
     }

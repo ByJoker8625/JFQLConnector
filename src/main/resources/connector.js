@@ -2,10 +2,8 @@ const Connection = function (url, user, password) {
 
     this.query = function (query, result) {
         const jsonObject = {
-            auth: {
-                user: user,
-                password: password
-            },
+            name: user,
+            password: password,
             query: query
         }
 

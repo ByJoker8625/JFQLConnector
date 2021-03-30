@@ -29,10 +29,8 @@ class Connection:
 
     def query(self, query):
         jsonObject = {
-            "auth": {
-                "user": self.user.get_name(),
-                "password": self.user.get_password()
-            },
+            "name": self.user.get_name(),
+            "password": self.user.get_password(),
             "query": query
         }
         jsonObject = str(jsonObject)

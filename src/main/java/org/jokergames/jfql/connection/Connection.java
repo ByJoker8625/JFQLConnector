@@ -84,39 +84,18 @@ public class Connection {
         exec("#connect", true);
     }
 
-    private JSONObject exec(String exec, boolean exception) {
+    private JSONObject exec(final String exec, final boolean exception) {
         if (!isConnected()) {
             throw new ConnectorException("Client isn't connected!");
         }
 
-        JSONObject jsonObject = new JSONObject();
-
-        {
-            JSONObject auth = new JSONObject();
-
-            if (cache.containsKey("user")) {
-                auth.put("user", cache.get("user"));
-            } else {
-                String encrypted = encryption.getProtocol().encrypt(user.getName(), encryption.getKey());
-                cache.put("user", encrypted);
-                auth.put("user", encrypted);
-            }
-
-            if (cache.containsKey("password")) {
-                auth.put("password", cache.get("password"));
-            } else {
-                String encrypted = encryption.getProtocol().encrypt(user.getPassword(), encryption.getKey());
-                cache.put("password", encrypted);
-                auth.put("password", encrypted);
-            }
-
-            jsonObject.put("auth", auth);
-        }
-
+        final JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", user.getName());
+        jsonObject.put("password", user.getPassword());
         jsonObject.put("query", exec);
 
         try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
@@ -139,9 +118,7 @@ public class Connection {
             inputStream.close();
             connection.disconnect();
 
-            final var build = builder.toString();
-
-            System.out.println(build + " |0");
+            final String build = builder.toString();
 
             if (build.isEmpty() || !build.startsWith("{"))
                 return null;
@@ -205,6 +182,10 @@ public class Connection {
         }
 
         return new Result(encryption, exec(query, exception), exception);
+    }
+
+    public void disconnect() {
+        url = null;
     }
 
     public boolean isConnected() {
