@@ -18,7 +18,7 @@ const Connection = function (url, user, password) {
         }
 
         request.onreadystatechange = () => {
-            var response = request.responseText
+            const response = request.responseText
 
             if (response.startsWith('{') && response.endsWith('}')) {
                 if (result !== null && result !== undefined)

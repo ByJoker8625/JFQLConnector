@@ -14,8 +14,6 @@ public class ConnectorExample {
         Connection connection = new Connection("http://localhost:2291/query", new User("root", "pw"));
         connection.connect();
 
-        connection.query("CREATE DATABASE Example", false);
-        connection.query("USE DATABASE Example");
         connection.query("CREATE TABLE Users STRUCTURE Name Password Email", false);
 
         //Select values
@@ -29,11 +27,11 @@ public class ConnectorExample {
 ### Python
 
 ```python
-# Create connection
-connection = Connection("http://localhost:2291/query", User("root", "pw"))
+import connector
 
-connection.query("CREATE DATABASE Example")
-connection.query("USE DATABASE Example")
+# Create connection
+connection = connector.Connection("http://localhost:2291/query", User("root", "pw"))
+
 connection.query("CREATE TABLE Users STRUCTURE Name Password Email")
 
 # Select values
@@ -47,8 +45,6 @@ print(result)
 //Create connection
 var connection = new Connection('http://localhost:2291/query', 'root', 'pw')
 
-connection.query('CREATE DATABASE Example')
-connection.query('USE DATABASE Example')
 connection.query('CREATE TABLE Users STRUCTURE Name Password Email')
 
 //Select values
