@@ -27,21 +27,20 @@ public class ConnectorExample {
 ```
 
 ```xml
-    <repositories>
-        <repository>
-            <id>joker-games</id>
-            <url>https://joker-games.org/repository</url>
-        </repository>
-    </repositories>
+<repositories>
+    <repository>
+        <id>joker-games</id>
+        <url>https://joker-games.org/repository</url>
+    </repository>
+</repositories>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.joker-games</groupId>
-            <artifactId>JFQLConnector</artifactId>
-            <version>1.1</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+<dependencies>
+    <dependency>
+        <groupId>org.joker-games</groupId>
+        <artifactId>JFQLConnector</artifactId>
+        <version>1.1</version>
+    </dependency>
+</dependencies>
 ```
 
 ### Python
