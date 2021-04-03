@@ -2,7 +2,9 @@
 
 With the [JFQLConnector](https://joker-games.org/documentation/connector/download) you can connect to the MyJFQL DMBS.
 There is support for JavaScript, Python and Java. You can, however, write a connector yourself in another language such
-as C #. The language only needs JSON support and an HTTP client.
+as C#. The language only needs JSON support and an HTTP client.
+
+The example program listed here would log into a database which is located on port *2291* local on the server or computer. There it logs on with the user data *root* and *pw*. Then a table with the name *Users* is created there. All values are then read out from this and printed on the console.
 
 ### Java
 
@@ -22,6 +24,24 @@ public class ConnectorExample {
     }
 }
 
+```
+
+```xml
+    <repositories>
+        <repository>
+            <id>joker-games</id>
+            <url>https://joker-games.org/repository</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.joker-games</groupId>
+            <artifactId>JFQLConnector</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 ```
 
 ### Python
