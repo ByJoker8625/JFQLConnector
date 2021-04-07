@@ -49,7 +49,7 @@ public class ConnectorExample {
 import connector
 
 # Create connection
-connection = connector.Connection("http://localhost:2291/query", User("root", "pw"))
+connection = connector.Connection("http://localhost:2291/query", connector.User("root", "pw"))
 
 connection.query("CREATE TABLE Users STRUCTURE Name Password Email")
 
