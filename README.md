@@ -72,6 +72,11 @@ connection.query('SELECT VALUE * FROM Users', (json) => response = json)
 console.log(response)
 ```
 
+### Documentation
+
+To see detailed documentation on JFQLConnector [here](https://joker-games.org/documentation/connector/python/).
+
+
 ### License
 
 All files on this repository are subject to the MIT license. Please read

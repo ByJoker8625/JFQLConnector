@@ -26,5 +26,3 @@ hs_err_pid*
 .idea
 .target
 *.iml
-target/classes/connection.js
-target/generated-sources/
