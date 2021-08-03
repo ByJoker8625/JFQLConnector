@@ -1,5 +1,13 @@
-const Connection = function (url, user, password) {
+const Connection = function (host, user, password) {
 
+    this.connect = function (){
+        this.query("#connect", (res) => {
+             if(res["type"] === "FORBIDDEN"){
+                 throw new Error("Connection failed!")
+             }
+        })
+    }
+    
     this.query = function (query, result) {
         const jsonObject = {
             name: user,
@@ -7,14 +15,14 @@ const Connection = function (url, user, password) {
             query: query
         }
 
-        const request = new XMLHttpRequest();
+        const request = new XMLHttpRequest()
 
-        if (url.startsWith("myjfql:")) {
-            url = "http://" + url.replace("myjfql:", "") + ":2291/query"
+        if (host.startsWith("myjfql:")) {
+            host = "http://" + host.replace("myjfql:", "") + ":2291/query"
         }
 
-        if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "http://" + url
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host
         }
 
         request.onreadystatechange = () => {
@@ -24,9 +32,9 @@ const Connection = function (url, user, password) {
                 if (result !== null && result !== undefined)
                     result(JSON.parse(response))
             }
-        };
+        }
 
-        request.open('POST', url, false)
+        request.open('POST', host, false)
         request.send(JSON.stringify(jsonObject))
     }
 }

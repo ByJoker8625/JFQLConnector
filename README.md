@@ -1,12 +1,12 @@
 # JFQLConnector
 
-With the [JFQLConnector](https://joker-games.org/documentation/connector/download) you can connect to the MyJFQL DMBS.
-There is support for JavaScript, Python and Java. You can, however, write a connector yourself in another language such
-as C#. The language only needs JSON support and an HTTP client.
-
-The example program listed here would log into a database which is located on port *2291* local on the server or computer. There it logs on with the user data *root* and *pw*. Then a table with the name *Users* is created there. All values are then read out from this and printed on the console.
+With the JFQLConnector you can connect to the MyJFQL DMBS. There is support for JavaScript, Python and Java. You can,
+however, write a connector yourself in another language such as C#. The language only needs JSON support and an HTTP
+client.
 
 ### Java
+
+If you want to use the Java version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/java/) to download it.
 
 ```java
 
@@ -154,7 +154,10 @@ public class JFQLProjectExample {
 }
 ```
 
+or you can also import me into your pom.xml. Like this:
+
 ```xml
+
 <repositories>
     <repository>
         <id>joker-games</id>
@@ -163,47 +166,164 @@ public class JFQLProjectExample {
 </repositories>
 
 <dependencies>
-    <dependency>
-        <groupId>org.joker-games</groupId>
-        <artifactId>JFQLConnector</artifactId>
-        <version>1.1</version>
-    </dependency>
+<dependency>
+    <groupId>org.joker-games</groupId>
+    <artifactId>JFQLConnector</artifactId>
+    <version>1.1</version>
+</dependency>
 </dependencies>
 ```
 
 ### Python
 
+If you want to use the Python version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/python/) to download it
+
 ```python
-import connector
+from connector import *
 
-# Create connection
-connection = connector.Connection("http://localhost:2291/query", connector.User("root", "pw"))
+if __name__ == '__main__':
+    """If you want to connect your application to a MyJFQL database you have to create a connection with the
+    connection class. You can enter your connection information like your host, username and password in the
+    constructor of the connection. Like this:"""
 
-connection.query("CREATE TABLE Users STRUCTURE Name Password Email")
+    connection = Connection("myjfql:your-host.com", User("your-user-name", "your-user-password"))
+    connection.connect()
 
-# Select values
-result = connection.query("SELECT VALUE * FROM Users")
-print(result)
+    """If a connection has been successfully established, commands can be sent to the database.
+    You can to this in two ways: you send a query and don't use the response, or you use the response.
+    In this case a query will be sent to the database."""
+
+    connection.query("create table Example structure Column1 Column2 Column3")
+
+    """If you want to integrate variables into your query python has some cool features for this. For example:"""
+
+    connection.query("create table Example structure {} {} {}".format("Column1", "Column2", "Column3"))
+
+    """Maybe you want the result of your query. You can get it like this:"""
+
+    result = connection.query("select value * from Example")
+
+    result["type"]  # returns the type of response
+    result["structure"]  # returns the structure of the query (important if case of a table)
+
+    """The actual result for example the content of a table is accessible by using code like this:"""
+
+    columns = result["answer"]
+
+    """"To check if something is inside this columns list you can use the len function:"""
+
+    if len(columns) == 0:
+        # Nothing is in the columns!
+        pass
+    else:
+        # Do something...
+        pass
+
+    """For example, you want to get all rows of a table you can use:"""
+
+    columns = connection.query("select value * from Example")["answer"]
+
+    """You can go through this with a for loop, for example.
+    There are two types of results, with one there are theoretically several columns that could be present.
+    The column whose value you would like to have must be explicitly specified again (select query only). Like here:"""
+
+    for column in columns:
+        column["creation"]  # returns the date when the column was created (is ms).
+        content = column["content"]  # returns the content of this column
+
+        content["Column1"]  # returns the value of Column1 of this column
+
+    """In the second case, each column has and can only have one value.
+    There you do not have to specify the desired column (list, structure query only). Like this:"""
+
+    for column in columns:
+        """The column variable is the content of this column."""
+        pass
+
+    """The contents of the columns are defaulted to a string. If you want other type you have to convert them."""
 ```
 
 ### JavaScript
 
+If you want to use the JavaScript version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/javascript/) to download it.
+
 ```javascript
-//Create connection
-var connection = new Connection('http://localhost:2291/query', 'root', 'pw')
+/**
+ * If you want to connect your application to a MyJFQL database you have to create a connection with the connection class.
+ * You can enter your connection information like your host, username and password in the constructor of the connection.
+ * Like this:
+ */
 
-connection.query('CREATE TABLE Users STRUCTURE Name Password Email')
 
-//Select values
-let response
-connection.query('SELECT VALUE * FROM Users', (json) => response = json)
-console.log(response)
+const connection = new Connection("myjfql:your-host.com", "your-user-name", "your-user-password");
+connection.connect()
+
+/**
+ * If a connection has been successfully established, commands can be sent to the database.
+ * You can to this in two ways: you send a query and don't use the response, or you use the response.
+ */
+
+connection.query("create table Example structure Column1 Column2 Column3")
+
+/**
+ * Maybe you want the result of your query. You can get it like this:
+ */
+
+const result = connection.query("select value * from Example")
+
+result["type"]  // returns the type of response
+result["structure"]  //returns the structure of the query (important if case of a table)
+
+/**
+ * The actual result for example the content of a table is accessible by using code like this
+ */
+
+const columns = result["answer"]
+
+/**
+ * To check if something is inside this columns list you can use the length function
+ */
+
+
+if (columns.length === 0) {
+    //Nothing is in the columns!
+} else {
+    //Do something...
+}
+
+/**
+ * For example, you want to get all rows of a table you can use:
+ */
+
+
+const columns = connection.query("select value * from Example")["answer"]
+
+/**
+ * You can go through this with a for loop, for example.
+ * There are two types of results, with one there are theoretically several columns that could be present.
+ * The column whose value you would like to have must be explicitly specified again (select query only). Like here:
+ */
+
+
+for (let column in columns) {
+    column["creation"]  // returns the date when the column was created (is ms).
+    const content = column["content"]  // returns the content of this column
+
+    content["Column1"]  // returns the value of Column1 of this column
+}
+
+/**
+ * In the second case, each column has and can only have one value.
+ * There you do not have to specify the desired column (list, structure query only). Like this:
+ */
+for (let column in columns) {
+    //The column variable is the content of this column.
+}
+
+/**
+ * The contents of the columns are defaulted to a string. If you want other type you have to convert them.
+ */
 ```
-
-### Documentation
-
-To see detailed documentation on JFQLConnector [here](https://joker-games.org/documentation/connector/python/).
-
 
 ### License
 

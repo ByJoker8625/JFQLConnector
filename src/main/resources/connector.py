@@ -1,7 +1,6 @@
 import json
 import requests
 
-
 class User:
 
     def __init__(self, name, password):
@@ -27,27 +26,33 @@ class Connection:
         self.host = host
         self.user = user
 
+    def connect(self):
+        result = self.query("#connect")
+
+        if result["type"] == "FORBIDDEN":
+            raise Exception("Connection failed!")
+
     def query(self, query):
-        jsonObject = {
+        json_object = {
             "name": self.user.get_name(),
             "password": self.user.get_password(),
             "query": query
         }
-        jsonObject = str(jsonObject)
+        json_object = str(json_object)
 
-        request = requests.post(self.format_host(self.host), jsonObject)
+        request = requests.post(self.format_host(), json_object)
         return json.loads(request.text)
 
-    def format_host(self, host):
-        newHost = host
+    def format_host(self):
+        new_host = self.host
 
-        if (host.startswith("myjfql:")):
-            newHost = "http://" + host.replace("myjfql:", "") + ":2291/query"
+        if self.host.startswith("myjfql:"):
+            new_host = "http://" + self.host.replace("myjfql:", "") + ":2291/query"
 
-        if (not host.startswith("http://") and not host.startswith("https://")):
-            newHost = "http://" + host
+        if not new_host.startswith("http://") and not new_host.startswith("https://"):
+            new_host = "http://" + self.host
 
-        return newHost
+        return new_host
 
     def get_user(self):
         return self.user
