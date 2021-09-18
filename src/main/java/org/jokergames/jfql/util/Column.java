@@ -1,28 +1,21 @@
 package org.jokergames.jfql.util;
 
-import org.jokergames.jfql.encryption.Encryption;
+import org.json.JSONArray;
 import org.json.JSONObject;
-
-/**
- * @author Janick
- */
 
 public class Column {
 
     private final JSONObject jsonObject;
     private final Object content;
-    private final Encryption encryption;
 
-    public Column(Encryption encryption, JSONObject jsonObject) {
+    public Column(JSONObject jsonObject) {
         this.jsonObject = jsonObject;
         this.content = null;
-        this.encryption = encryption;
     }
 
-    public Column(Encryption encryption, Object content) {
+    public Column(Object content) {
         this.jsonObject = null;
         this.content = content;
-        this.encryption = encryption;
     }
 
     public long getCreation() {
@@ -38,7 +31,7 @@ public class Column {
             return null;
         }
 
-        return encryption.getProtocol().decrypt(content.toString(), encryption.getKey());
+        return content.toString();
     }
 
     public int getInteger() {
@@ -89,14 +82,20 @@ public class Column {
         return Short.parseShort(getString());
     }
 
-    public String getString(String key) {
-        String encryptedKey = encryption.getProtocol().encrypt(key, encryption.getKey());
+    public JSONObject getJSONObject() {
+        return new JSONObject(getString());
+    }
 
+    public JSONArray getJSONArray() {
+        return new JSONArray(getString());
+    }
+
+    public String getString(String key) {
         if (jsonObject == null) {
             return null;
         }
 
-        return encryption.getProtocol().decrypt(jsonObject.getJSONObject("content").get(encryptedKey).toString(), encryption.getKey());
+        return jsonObject.getJSONObject("content").getString(key);
     }
 
     public int getInteger(String key) {
@@ -147,6 +146,14 @@ public class Column {
         return Boolean.parseBoolean(getString(key));
     }
 
+    public JSONObject getJSONObject(String key) {
+        return new JSONObject(getString(key));
+    }
+
+    public JSONArray getJSONArray(String key) {
+        return new JSONArray(getString(key));
+    }
+
     public boolean isEmpty() {
         if (jsonObject == null) {
             return content == null;
@@ -156,7 +163,7 @@ public class Column {
     }
 
     @Deprecated
-    public JSONObject getJsonObject() {
+    public JSONObject toJSONObject() {
         return jsonObject;
     }
 
@@ -165,18 +172,8 @@ public class Column {
         if (jsonObject == null) {
             return getString();
         } else {
-            JSONObject jsonObject = new JSONObject();
-
-            for (String key : this.jsonObject.getJSONObject("content").keySet()) {
-                String decryptedKey = encryption.getProtocol().decrypt(key, encryption.getKey());
-                jsonObject.put(decryptedKey, getString(decryptedKey));
-            }
-
-            return jsonObject.toString();
+            return jsonObject.getJSONObject("content").toString();
         }
     }
 
-    public Encryption getEncryption() {
-        return encryption;
-    }
 }

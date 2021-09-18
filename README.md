@@ -6,11 +6,13 @@ client.
 
 ### Java
 
-If you want to use the Java version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/java/) to download it.
+If you want to use the Java version of the JFQLConnector click
+on [download](https://joker-games.org/documentation/connector/java/) to download it.
 
 ```java
 
 import org.jokergames.jfql.connection.Connection;
+import org.jokergames.jfql.connection.MyJFQLConnectionection;
 import org.jokergames.jfql.util.Column;
 import org.jokergames.jfql.util.Result;
 import org.jokergames.jfql.util.User;
@@ -86,7 +88,6 @@ public class JFQLProjectExample {
         result.getType(); //returns the type of response
 
         result.getResponse(); //returns the howl response in an JSONObject
-        result.getEncryption(); //this returns the encryption of the result (this is a deprecated old unused feature)
 
         //those methods return the structure of the query (important if case of a table)
         result.getStructureArray();
@@ -120,8 +121,7 @@ public class JFQLProjectExample {
          */
 
         for (Column column : columns) {
-            column.getEncryption(); //this returns the encryption of the result (this is a deprecated old unused feature)
-            column.getJsonObject(); //returns the source of the column as JSONObject
+            column.toJSONObject(); //returns the source of the column as JSONObject
 
             column.getCreation(); //returns the date when the column was created (is ms).
 
@@ -169,14 +169,15 @@ or you can also import me into your pom.xml. Like this:
 <dependency>
     <groupId>org.joker-games</groupId>
     <artifactId>JFQLConnector</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 </dependency>
 </dependencies>
 ```
 
 ### Python
 
-If you want to use the Python version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/python/) to download it
+If you want to use the Python version of the JFQLConnector click
+on [download](https://joker-games.org/documentation/connector/python/) to download it
 
 ```python
 from connector import *
@@ -245,7 +246,8 @@ if __name__ == '__main__':
 
 ### JavaScript
 
-If you want to use the JavaScript version of the JFQLConnector click on [download](https://joker-games.org/documentation/connector/javascript/) to download it.
+If you want to use the JavaScript version of the JFQLConnector click
+on [download](https://joker-games.org/documentation/connector/javascript/) to download it.
 
 ```javascript
 /**

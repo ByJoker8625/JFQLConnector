@@ -1,6 +1,5 @@
 package org.jokergames.jfql.util;
 
-import org.jokergames.jfql.encryption.Encryption;
 import org.jokergames.jfql.exception.ConnectorException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,22 +8,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Janick
- */
-
 public class Result {
 
     private final JSONObject jsonObject;
-    private final Encryption encryption;
 
-    public Result(Encryption encryption, JSONObject jsonObject) {
-        this(encryption, jsonObject, true);
+    public Result(JSONObject jsonObject) {
+        this(jsonObject, true);
     }
 
-    public Result(Encryption encryption, JSONObject jsonObject, boolean exception) {
+    public Result(JSONObject jsonObject, boolean exception) {
         this.jsonObject = jsonObject;
-        this.encryption = encryption;
 
         if (!exception && jsonObject == null)
             return;
@@ -58,9 +51,9 @@ public class Result {
             Object object = answer.get(j);
 
             if (object instanceof JSONObject) {
-                columns.add(new Column(encryption, answer.getJSONObject(j)));
+                columns.add(new Column(answer.getJSONObject(j)));
             } else {
-                columns.add(new Column(encryption, object));
+                columns.add(new Column(object));
             }
         }
 
@@ -72,7 +65,7 @@ public class Result {
             throw new ConnectorException("The response type isn't 'REST'!");
         }
 
-        return jsonObject.getJSONArray("structure").toList().stream().map(Object::toString).map(toString -> encryption.getProtocol().decrypt(toString, encryption.getKey())).collect(Collectors.toList());
+        return jsonObject.getJSONArray("structure").toList().stream().map(Object::toString).collect(Collectors.toList());
     }
 
     public String[] getStructureArray() {
@@ -97,10 +90,6 @@ public class Result {
 
     public String getType() {
         return jsonObject.getString("type");
-    }
-
-    public Encryption getEncryption() {
-        return encryption;
     }
 
     @Override

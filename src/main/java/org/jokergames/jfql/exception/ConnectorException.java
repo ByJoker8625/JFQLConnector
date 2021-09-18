@@ -1,9 +1,5 @@
 package org.jokergames.jfql.exception;
 
-/**
- * @author Janick
- */
-
 public class ConnectorException extends RuntimeException {
 
     public ConnectorException() {

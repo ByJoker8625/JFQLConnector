@@ -1,7 +1,6 @@
 package org.jokergames.jfql.connection;
 
-import org.jokergames.jfql.encryption.Encryption;
-import org.jokergames.jfql.encryption.NoneEncryption;
+import com.google.gson.Gson;
 import org.jokergames.jfql.exception.ConnectorException;
 import org.jokergames.jfql.util.Result;
 import org.jokergames.jfql.util.User;
@@ -11,46 +10,31 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * @author Janick
- */
 
 public class Connection {
 
     private final String host;
-    private final Map<String, String> cache;
+    private final Gson gson;
     private URL url;
     private User user;
-    private Encryption encryption;
-
-    public Connection(String host, User user, Encryption encryption) {
-        this.host = host;
-        this.user = user;
-        this.encryption = encryption;
-        this.cache = new HashMap<>();
-    }
 
     public Connection(String host, User user) {
-        this(host, user, new NoneEncryption());
+        this.host = host;
+        this.user = user;
+        this.url = null;
+        this.gson = new Gson();
     }
 
     public Connection(String host) {
-        this(host, null, new NoneEncryption());
+        this(host, null);
     }
 
     public Connection(User user) {
-        this(null, user, new NoneEncryption());
-    }
-
-    public Connection(Encryption encryption) {
-        this(null, null, encryption);
+        this(null, user);
     }
 
     public Connection() {
-        this(null, null, new NoneEncryption());
+        this(null, null);
     }
 
     public static String createURL(String address) {
@@ -120,7 +104,7 @@ public class Connection {
 
             final String build = builder.toString();
 
-            if (build.isEmpty() || !build.startsWith("{"))
+            if (!build.startsWith("{"))
                 return null;
             else
                 return new JSONObject(builder.toString());
@@ -132,7 +116,23 @@ public class Connection {
         }
     }
 
-    private String formatHost(String host) {
+    public Result query(String query) {
+        return new Result(exec(query, true));
+    }
+
+    public Result query(String query, boolean exception) {
+        return new Result(exec(query, exception), exception);
+    }
+
+    public Result query(String query, Object... replacers) {
+        return new Result(exec(formatQuery(query, replacers), true));
+    }
+
+    public Result query(String query, boolean exception, Object... replacers) {
+        return new Result(exec(formatQuery(query, replacers), exception), exception);
+    }
+
+    public String formatHost(String host) {
         if (!host.contains("?")) {
             if (host.startsWith("myjfql:")) {
                 host = "http://" + host.replace("myjfql:", "") + ":2291/query";
@@ -154,34 +154,20 @@ public class Connection {
         return formatHost(strings[0]) + "?" + strings[1];
     }
 
-    public Result query(String query) {
-        return new Result(encryption, exec(query, true));
-    }
-
-    public Result query(String query, boolean exception) {
-        return new Result(encryption, exec(query, exception), exception);
-    }
-
-    public Result query(String query, Object... replacers) {
+    public String formatQuery(String query, Object... replacers) {
         for (Object replace : replacers) {
             if (replace == null)
                 query = query.replaceFirst("%", "null");
-            else
+            else {
                 query = query.replaceFirst("%", replace.toString());
+            }
         }
 
-        return new Result(encryption, exec(query, true));
+        return query;
     }
 
-    public Result query(String query, boolean exception, Object... replacers) {
-        for (Object replace : replacers) {
-            if (replace == null)
-                query = query.replaceFirst("%", "null");
-            else
-                query = query.replaceFirst("%", replace.toString());
-        }
-
-        return new Result(encryption, exec(query, exception), exception);
+    public String formatJSON(Object object) {
+        return gson.toJson(object);
     }
 
     public void disconnect() {
@@ -190,14 +176,6 @@ public class Connection {
 
     public boolean isConnected() {
         return url != null;
-    }
-
-    public Encryption getEncryption() {
-        return encryption;
-    }
-
-    public void setEncryption(Encryption encryption) {
-        this.encryption = encryption;
     }
 
     public User getUser() {

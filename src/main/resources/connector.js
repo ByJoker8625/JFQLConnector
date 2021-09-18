@@ -1,13 +1,13 @@
 const Connection = function (host, user, password) {
 
-    this.connect = function (){
+    this.connect = function () {
         this.query("#connect", (res) => {
-             if(res["type"] === "FORBIDDEN"){
-                 throw new Error("Connection failed!")
-             }
+            if (res["type"] === "FORBIDDEN") {
+                throw new Error("Connection failed!")
+            }
         })
     }
-    
+
     this.query = function (query, result) {
         const jsonObject = {
             name: user,

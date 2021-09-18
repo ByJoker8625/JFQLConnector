@@ -1,9 +1,5 @@
 package org.jokergames.jfql.util;
 
-/**
- * @author Janick
- */
-
 public class User {
 
     private final String name;
