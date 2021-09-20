@@ -6,10 +6,12 @@ import org.jokergames.jfql.util.Result;
 import org.jokergames.jfql.util.User;
 import org.json.JSONObject;
 
-import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class Connection {
 
@@ -87,19 +89,19 @@ public class Connection {
             connection.setReadTimeout(5000);
 
             final OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(jsonObject.toString().getBytes());
+            outputStream.write(jsonObject.toString().getBytes(StandardCharsets.UTF_8));
             outputStream.close();
 
-            final InputStream inputStream = connection.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
             final StringBuilder builder = new StringBuilder();
 
-            int read;
+            String read;
 
-            while ((read = inputStream.read()) != -1) {
-                builder.append((char) read);
+            while ((read = reader.readLine()) != null) {
+                builder.append(read);
             }
 
-            inputStream.close();
+            reader.close();
             connection.disconnect();
 
             final String build = builder.toString();
