@@ -90,6 +90,10 @@ public class Column {
         return new JSONArray(getString());
     }
 
+    public ID getID() {
+        return new ID(getString());
+    }
+
     public String getString(String key) {
         if (jsonObject == null) {
             return null;
@@ -152,6 +156,10 @@ public class Column {
 
     public JSONArray getJSONArray(String key) {
         return new JSONArray(getString(key));
+    }
+
+    public ID getID(String key) {
+        return new ID(getString(key));
     }
 
     public boolean isEmpty() {
