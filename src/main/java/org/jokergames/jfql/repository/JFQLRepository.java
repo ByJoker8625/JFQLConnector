@@ -28,7 +28,7 @@ public interface JFQLRepository<T> {
 
     List<T> findAllWhere(String conditions);
 
-    T findOneByPrimary(String primary);
+    T findOneByPrimary(Object primary);
 
     T findOneBy(String field, Object value);
 

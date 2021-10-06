@@ -94,7 +94,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public List<T> findAllBy(String field, Object value) {
-        List<Column> columns = connection.query("select value * from % where % = %", table, field, value).getColumns();
+        List<Column> columns = connection.query("select value * from % where % = " + value, table, field).getColumns();
 
         if (columns.size() == 0)
             return new ArrayList<>();
@@ -104,7 +104,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public List<T> findAllWhere(String conditions) {
-        List<Column> columns = connection.query("select value * from % where %", table, conditions).getColumns();
+        List<Column> columns = connection.query("select value * from % where " + conditions, table).getColumns();
 
         if (columns.size() == 0)
             return new ArrayList<>();
@@ -113,7 +113,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
     }
 
     @Override
-    public T findOneByPrimary(String primary) {
+    public T findOneByPrimary(Object primary) {
         try {
             List<Column> columns = connection.query("select value * from % primary-key % limit 1", table, primary).getColumns();
 
@@ -129,7 +129,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public T findOneBy(String field, Object value) {
-        List<Column> columns = connection.query("select value * from % where % = %", table, field, value).getColumns();
+        List<Column> columns = connection.query("select value * from % where % = " + value, table, field).getColumns();
 
         if (columns.size() == 0)
             return null;
@@ -139,7 +139,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public T findOneWhere(String conditions) {
-        List<Column> columns = connection.query("select value * from % where %", table, conditions).getColumns();
+        List<Column> columns = connection.query("select value * from % where " + conditions, table).getColumns();
 
         if (columns.size() == 0)
             return null;

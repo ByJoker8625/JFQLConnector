@@ -31,7 +31,8 @@ public class Column {
             return null;
         }
 
-        return content.toString();
+        final String stringContent = content.toString();
+        return (stringContent != null && stringContent.equals("null")) ? null : stringContent;
     }
 
     public int getInteger() {
@@ -99,7 +100,8 @@ public class Column {
             return null;
         }
 
-        return jsonObject.getJSONObject("content").getString(key);
+        final String content = jsonObject.getJSONObject("content").getString(key);
+        return (content != null && content.equals("null")) ? null : content;
     }
 
     public int getInteger(String key) {
@@ -168,6 +170,10 @@ public class Column {
         }
 
         return jsonObject.isEmpty();
+    }
+
+    public boolean isNull(String key) {
+        return getString(key) == null || getString(key).equals("null");
     }
 
     @Deprecated
