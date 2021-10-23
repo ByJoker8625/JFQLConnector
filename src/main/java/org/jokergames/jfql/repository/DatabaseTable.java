@@ -6,18 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface DatabaseField {
+@Target(ElementType.TYPE)
+public @interface DatabaseTable {
 
-    boolean formatJSON() default false;
+    String name() default "%";
 
-    boolean quotationMarks() default true;
+    String primary() default "%";
 
-    boolean primary() default false;
-
-    int position() default 10;
-
-    String field();
-
+    String structure() default "%";
 
 }

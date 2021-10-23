@@ -13,7 +13,7 @@ on [download](https://joker-games.org/documentation/connector/java/) to download
 
 import org.jokergames.jfql.connection.Connection;
 import org.jokergames.jfql.connection.MyJFQLConnectionection;
-import org.jokergames.jfql.util.Column;
+import org.jokergames.jfql.util.DatabaseTable;
 import org.jokergames.jfql.util.Result;
 import org.jokergames.jfql.util.User;
 
@@ -97,7 +97,7 @@ public class JFQLProjectExample {
          * The actual result for example the content of a table is accessible by the getColumns function. This function returns a list with all columns:
          */
 
-        final List<Column> columns = result.getColumns();
+        final List<DatabaseTable> columns = result.getColumns();
 
         /**
          * To check if something is inside this columns list you can use the size function of the list:
@@ -113,14 +113,14 @@ public class JFQLProjectExample {
          * For example, you want to get all rows of a table you can use:
          */
 
-        final List<Column> columns = connection.query("select value * from Example").getColumns();
+        final List<DatabaseTable> columns = connection.query("select value * from Example").getColumns();
 
         /**
          * You can go through this with a for loop, for example.
          * Now you have the column and like the result class it has some features.
          */
 
-        for (Column column : columns) {
+        for (DatabaseTable column : columns) {
             column.toJSONObject(); //returns the source of the column as JSONObject
 
             column.getCreation(); //returns the date when the column was created (is ms).

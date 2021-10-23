@@ -1,5 +1,6 @@
 package org.jokergames.jfql.util;
 
+import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -162,6 +163,10 @@ public class Column {
 
     public ID getID(String key) {
         return new ID(getString(key));
+    }
+
+    public <T> T formatJSON(String key, Class<T> t) {
+        return new Gson().fromJson(getString(key), t);
     }
 
     public boolean isEmpty() {
