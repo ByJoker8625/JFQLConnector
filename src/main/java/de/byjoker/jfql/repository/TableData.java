@@ -1,4 +1,4 @@
-package org.jokergames.jfql.repository;
+package de.byjoker.jfql.repository;
 
 public class TableData {
 

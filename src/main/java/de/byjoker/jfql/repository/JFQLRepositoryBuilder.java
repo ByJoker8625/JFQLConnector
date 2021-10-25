@@ -1,8 +1,8 @@
-package org.jokergames.jfql.repository;
+package de.byjoker.jfql.repository;
 
-import org.jokergames.jfql.connection.Connection;
-import org.jokergames.jfql.exception.RepositoryException;
-import org.jokergames.jfql.util.Column;
+import de.byjoker.jfql.connection.Connection;
+import de.byjoker.jfql.exception.RepositoryException;
+import de.byjoker.jfql.util.Column;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,6 +1,6 @@
-package org.jokergames.jfql.repository;
+package de.byjoker.jfql.repository;
 
-import org.jokergames.jfql.util.Column;
+import de.byjoker.jfql.util.Column;
 
 import java.util.List;
 

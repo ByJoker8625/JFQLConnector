@@ -1,6 +1,6 @@
-package org.jokergames.jfql.util;
+package de.byjoker.jfql.util;
 
-import org.jokergames.jfql.exception.ConnectorException;
+import de.byjoker.jfql.exception.ConnectorException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

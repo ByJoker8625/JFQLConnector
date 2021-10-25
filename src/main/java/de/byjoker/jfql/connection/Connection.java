@@ -1,9 +1,9 @@
-package org.jokergames.jfql.connection;
+package de.byjoker.jfql.connection;
 
 import com.google.gson.Gson;
-import org.jokergames.jfql.exception.ConnectorException;
-import org.jokergames.jfql.util.Result;
-import org.jokergames.jfql.util.User;
+import de.byjoker.jfql.exception.ConnectorException;
+import de.byjoker.jfql.util.Result;
+import de.byjoker.jfql.util.User;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -134,29 +134,22 @@ public class Connection {
         return new Result(exec(formatQuery(query, replacers), exception), exception);
     }
 
-    public String formatHost(String host) {
-        if (!host.contains("?")) {
-            if (host.startsWith("myjfql:")) {
-                host = "http://" + host.replace("myjfql:", "") + ":2291/query";
-            }
+    private String formatHost(String host) {
+        if (!host.startsWith("http://") && !host.startsWith("https://"))
+            host = "myjfql:" + host;
 
-            if (!host.startsWith("http://") && !host.startsWith("https://")) {
-                host = "http://" + host;
-            }
-
-            return host;
+        if (host.startsWith("myjfql:")) {
+            host = "http://" + host.replace("myjfql:", "") + ":2291/query";
         }
 
-        String[] strings = host.replace("?", "%").split("%");
-
-        if (strings.length != 2) {
-            return host;
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host;
         }
 
-        return formatHost(strings[0]) + "?" + strings[1];
+        return host;
     }
 
-    public String formatQuery(String query, Object... replacers) {
+    private String formatQuery(String query, Object... replacers) {
         for (Object replace : replacers) {
             if (replace == null)
                 query = query.replaceFirst("%", "null");

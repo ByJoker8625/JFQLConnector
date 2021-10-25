@@ -1,4 +1,4 @@
-package org.jokergames.jfql.util;
+package de.byjoker.jfql.util;
 
 import com.google.gson.Gson;
 import org.json.JSONArray;

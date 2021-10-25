@@ -1,4 +1,4 @@
-package org.jokergames.jfql.util;
+package de.byjoker.jfql.util;
 
 public class User {
 
