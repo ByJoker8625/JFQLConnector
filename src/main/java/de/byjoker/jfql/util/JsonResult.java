@@ -68,4 +68,9 @@ public class JsonResult implements Result {
     public JSONObject getResponse() {
         return jsonResponse;
     }
+
+    @Override
+    public String toString() {
+        return jsonResponse.toString();
+    }
 }

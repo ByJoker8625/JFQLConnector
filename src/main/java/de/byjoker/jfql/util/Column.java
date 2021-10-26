@@ -3,7 +3,7 @@ package de.byjoker.jfql.util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public interface Column {
+public interface Column extends SingleColumn {
 
     String getString(String key);
 

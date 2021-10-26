@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class JsonColumn implements Column, SingleColumn {
+public class JsonColumn implements Column {
 
     private final JSONObject jsonContent;
     private final Object content;
@@ -196,6 +196,15 @@ public class JsonColumn implements Column, SingleColumn {
         }
 
         return jsonContent.getLong("creation");
+    }
+
+    @Override
+    public String toString() {
+        if (content != null)
+            return content.toString();
+        else if (jsonContent != null)
+            return jsonContent.toString();
+        return null;
     }
 
 }
