@@ -1,5 +1,6 @@
 package de.byjoker.jfql.repository;
 
+import de.byjoker.jfql.connection.Connection;
 import de.byjoker.jfql.connection.JFQLConnection;
 import de.byjoker.jfql.exception.RepositoryException;
 import de.byjoker.jfql.util.Column;
@@ -12,11 +13,11 @@ import java.util.stream.Collectors;
 
 public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
-    private final JFQLConnection connection;
+    private final Connection connection;
     private final Class<? extends T> clazz;
     private TableData tableData;
 
-    protected JFQLRepositoryBuilder(JFQLConnection connection, Class<? extends T> clazz) {
+    protected JFQLRepositoryBuilder(Connection connection, Class<? extends T> clazz) {
         this.connection = connection;
         this.tableData = null;
         this.clazz = clazz;
@@ -214,7 +215,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
         return tableData;
     }
 
-    public JFQLConnection getConnection() {
+    public Connection getConnection() {
         return connection;
     }
 }
