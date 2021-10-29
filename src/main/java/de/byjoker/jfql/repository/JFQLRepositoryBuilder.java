@@ -1,7 +1,6 @@
 package de.byjoker.jfql.repository;
 
 import de.byjoker.jfql.connection.Connection;
-import de.byjoker.jfql.connection.JFQLConnection;
 import de.byjoker.jfql.exception.RepositoryException;
 import de.byjoker.jfql.util.Column;
 
