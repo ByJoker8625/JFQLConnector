@@ -68,14 +68,12 @@ public class TokenConnection implements Connection {
         if (host.startsWith("myjfql:"))
             host = host.replace("myjfql:", "http://");
 
-
         if (!host.startsWith("http://") && !host.startsWith("https://"))
             host = "http://" + host;
 
         try {
             token = send(host + "/api/v1/session/open", new JSONObject().put("user", user.getName()).put("password", user.getPassword())).getJSONArray("result").getString(0);
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new ConnectorException("Connection failed: " + ex.getMessage());
         }
 
