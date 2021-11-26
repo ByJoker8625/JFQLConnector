@@ -1,9 +1,10 @@
-package org.jokergames.jfql.connection;
+package de.byjoker.jfql.connection;
 
 import com.google.gson.Gson;
-import org.jokergames.jfql.exception.ConnectorException;
-import org.jokergames.jfql.util.Result;
-import org.jokergames.jfql.util.User;
+import de.byjoker.jfql.exception.ConnectorException;
+import de.byjoker.jfql.util.JsonResult;
+import de.byjoker.jfql.util.Result;
+import de.byjoker.jfql.util.User;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,40 +14,33 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
-public class Connection {
+public class JFQLConnection implements Connection {
 
-    private final String host;
     private final Gson gson;
+    private String host;
     private URL url;
     private User user;
 
-    public Connection(String host, User user) {
+    public JFQLConnection(String host, User user) {
         this.host = host;
         this.user = user;
         this.url = null;
         this.gson = new Gson();
     }
 
-    public Connection(String host) {
+    public JFQLConnection(String host) {
         this(host, null);
     }
 
-    public Connection(User user) {
+    public JFQLConnection(User user) {
         this(null, user);
     }
 
-    public Connection() {
+    public JFQLConnection() {
         this(null, null);
     }
 
-    public static String createURL(String address) {
-        return createURL(address, 2291);
-    }
-
-    public static String createURL(String address, int port) {
-        return "http://" + address + ":" + port + "/query";
-    }
-
+    @Override
     public void connect() {
         connect(host, user);
     }
@@ -59,18 +53,26 @@ public class Connection {
         connect(host, user);
     }
 
+    @Override
     public void connect(String host, User user) {
         try {
-            this.url = new URL(formatHost(host));
+            this.host = formatHost(host);
+            this.url = new URL(this.host);
             this.user = user;
         } catch (Exception ex) {
             throw new ConnectorException("Connection failed!");
         }
 
         exec("#connect", true);
+
+        if (user.useDatabaseQuery()) try {
+            query("use database '%'", user.getDatabase());
+        } catch (Exception ex) {
+            throw new ConnectorException(ex);
+        }
     }
 
-    private JSONObject exec(final String exec, final boolean exception) {
+    private JSONObject exec(String exec, boolean exception) {
         if (!isConnected()) {
             throw new ConnectorException("Client isn't connected!");
         }
@@ -118,45 +120,52 @@ public class Connection {
         }
     }
 
+    @Override
     public Result query(String query) {
-        return new Result(exec(query, true));
+        return new JsonResult(exec(query, true), true);
     }
 
+    @Override
     public Result query(String query, boolean exception) {
-        return new Result(exec(query, exception), exception);
+        return new JsonResult(exec(query, exception), exception);
     }
 
+    @Override
     public Result query(String query, Object... replacers) {
-        return new Result(exec(formatQuery(query, replacers), true));
+        return new JsonResult(exec(formatQuery(query, replacers), true), true);
     }
 
+    @Override
     public Result query(String query, boolean exception, Object... replacers) {
-        return new Result(exec(formatQuery(query, replacers), exception), exception);
+        return new JsonResult(exec(formatQuery(query, replacers), exception), exception);
     }
 
-    public String formatHost(String host) {
-        if (!host.contains("?")) {
-            if (host.startsWith("myjfql:")) {
-                host = "http://" + host.replace("myjfql:", "") + ":2291/query";
-            }
-
-            if (!host.startsWith("http://") && !host.startsWith("https://")) {
-                host = "http://" + host;
-            }
-
-            return host;
-        }
-
-        String[] strings = host.replace("?", "%").split("%");
-
-        if (strings.length != 2) {
-            return host;
-        }
-
-        return formatHost(strings[0]) + "?" + strings[1];
+    @Override
+    public String stringify(Object object) {
+        return gson.toJson(object);
     }
 
-    public String formatQuery(String query, Object... replacers) {
+    @Override
+    public <T> T parse(String json, Class<T> clazz) {
+        return gson.fromJson(json, clazz);
+    }
+
+    private String formatHost(String host) {
+        if (!host.startsWith("http://") && !host.startsWith("https://"))
+            host = "myjfql:" + host;
+
+        if (host.startsWith("myjfql:")) {
+            host = "http://" + host.replace("myjfql:", "") + ":2291/query";
+        }
+
+        if (!host.startsWith("http://") && !host.startsWith("https://")) {
+            host = "http://" + host;
+        }
+
+        return host;
+    }
+
+    private String formatQuery(String query, Object... replacers) {
         for (Object replace : replacers) {
             if (replace == null)
                 query = query.replaceFirst("%", "null");
@@ -168,14 +177,12 @@ public class Connection {
         return query;
     }
 
-    public String formatJSON(Object object) {
-        return gson.toJson(object);
-    }
-
+    @Override
     public void disconnect() {
         url = null;
     }
 
+    @Override
     public boolean isConnected() {
         return url != null;
     }
@@ -187,6 +194,5 @@ public class Connection {
     public String getHost() {
         return host;
     }
-
 
 }

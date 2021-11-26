@@ -1,6 +1,6 @@
-package org.jokergames.jfql.connection;
+package de.byjoker.jfql.connection;
 
-import org.jokergames.jfql.util.User;
+import de.byjoker.jfql.util.User;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
@@ -16,10 +16,10 @@ public class SpringConnectionPool {
         final ClassPathResource resource = new ClassPathResource("/application.properties");
         final Properties props = PropertiesLoaderUtils.loadProperties(resource);
 
-        connection = new Connection(props.getProperty("org.jokergames.jfql.connection.host"), new User(props.getProperty("org.jokergames.jfql.connection.user"), props.getProperty("org.jokergames.jfql.connection.password")));
+        connection = new JFQLConnection(props.getProperty("de.byjoker.jfql.connection.host"), new User(props.getProperty("de.byjoker.jfql.connection.user"), props.getProperty("de.byjoker.jfql.connection.password")));
         connection.connect();
 
-        String database = props.getProperty("org.jokergames.jfql.connection.database");
+        String database = props.getProperty("de.byjoker.jfql.connection.database");
 
         if (!database.equals("%STATIC_DATABASE%"))
             connection.query("use database '%'", false, new Object[]{database});

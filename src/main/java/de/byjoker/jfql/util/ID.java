@@ -1,4 +1,4 @@
-package org.jokergames.jfql.util;
+package de.byjoker.jfql.util;
 
 import java.util.Objects;
 import java.util.Random;

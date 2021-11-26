@@ -1,8 +1,8 @@
-package org.jokergames.jfql.repository;
+package de.byjoker.jfql.repository;
 
-import org.jokergames.jfql.connection.Connection;
-import org.jokergames.jfql.exception.RepositoryException;
-import org.jokergames.jfql.util.Column;
+import de.byjoker.jfql.connection.Connection;
+import de.byjoker.jfql.exception.RepositoryException;
+import de.byjoker.jfql.util.Column;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +25,6 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
     public void build() {
         if (!clazz.isAnnotationPresent(DatabaseTable.class))
             throw new RepositoryException(clazz.getName() + " isn't annotated with @DatabaseTable!");
-
 
         final DatabaseTable table = clazz.getAnnotation(DatabaseTable.class);
         final List<ColumnData> columns = getDatabaseColumns();
@@ -58,7 +57,7 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
             try {
                 if (json) {
-                    content = connection.formatJSON(field.get(entity));
+                    content = connection.stringify(field.get(entity));
                 } else {
                     Object o = field.get(entity);
 
@@ -90,11 +89,17 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public List<T> formatEntities(List<Column> columns) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
+
         return columns.stream().map(this::formatEntity).collect(Collectors.toList());
     }
 
     @Override
     public void save(T entity) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
+
         final List<ColumnData> columns = getDatabaseColumns(entity);
         final StringBuilder builder = new StringBuilder().append("insert into ").append(tableData.getName()).append(" key");
         final StringBuilder values = new StringBuilder();
@@ -111,46 +116,65 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public void saveAll(List<T> entities) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         entities.forEach(this::save);
     }
 
     @Override
     public void delete(T entity) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         connection.query("remove column '" + Objects.requireNonNull(getDatabaseColumns(entity).stream().filter(column -> column.getName().equals(tableData.getPrimary())).findFirst().orElse(null)).getContent() + "' from " + tableData.getName());
     }
 
     @Override
     public void deleteAllBy(String field, Object value) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         connection.query("remove column * from " + tableData.getName() + " where " + field + " = " + value.toString());
     }
 
     @Override
     public void deleteAllWhere(String conditions) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         connection.query("remove column * from " + tableData.getName() + " where " + conditions);
     }
 
     @Override
     public void deleteAll() {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         connection.query("remove column * from " + tableData.getName());
     }
 
     @Override
     public List<T> findAll() {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         return formatEntities(connection.query("select value * from " + tableData.getName()).getColumns());
     }
 
     @Override
     public List<T> findAllBy(String field, Object value) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         return formatEntities(connection.query("select value * from " + tableData.getName() + " where " + field + " = " + value.toString()).getColumns());
     }
 
     @Override
     public List<T> findAllWhere(String conditions) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
         return formatEntities(connection.query("select value * from " + tableData.getName() + " where " + conditions).getColumns());
     }
 
     @Override
     public T findOneByPrimary(Object primary) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
+
         try {
             return formatEntity(connection.query("select value * from " + tableData.getName() + " limit 1 primary-key " + primary).getColumns().get(0));
         } catch (Exception ex) {
@@ -160,6 +184,9 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public T findOneBy(String field, Object value) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
+
         try {
             return formatEntity(connection.query("select value * from " + tableData.getName() + " limit 1 where " + field + " = " + value.toString()).getColumns().get(0));
         } catch (Exception ex) {
@@ -169,6 +196,9 @@ public abstract class JFQLRepositoryBuilder<T> implements JFQLRepository<T> {
 
     @Override
     public T findOneWhere(String conditions) {
+        if (tableData == null)
+            throw new RepositoryException("Repository have to been built with 'super.build();' !");
+
         try {
             return formatEntity(connection.query("select value * from " + tableData.getName() + " limit 1 where" + conditions).getColumns().get(0));
         } catch (Exception ex) {
