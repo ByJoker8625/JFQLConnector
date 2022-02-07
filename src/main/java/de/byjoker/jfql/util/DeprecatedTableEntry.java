@@ -4,20 +4,37 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class JsonColumn implements Column {
+public class DeprecatedTableEntry implements TableEntry {
 
     private final JSONObject jsonContent;
     private final Object content;
 
-    public JsonColumn(JSONObject jsonContent) {
+    public DeprecatedTableEntry(JSONObject jsonContent) {
         this.jsonContent = jsonContent;
         this.content = null;
     }
 
-
-    public JsonColumn(Object content) {
+    public DeprecatedTableEntry(Object content) {
         this.jsonContent = null;
         this.content = content;
+    }
+
+    @Override
+    public Object getObject(String key) {
+        if (jsonContent == null) {
+            return null;
+        }
+
+        return jsonContent.get(key);
+    }
+
+    @Override
+    public String getRawString(String key) {
+        if (jsonContent == null) {
+            return null;
+        }
+
+        return jsonContent.getString(key);
     }
 
     @Override
@@ -26,7 +43,7 @@ public class JsonColumn implements Column {
             return null;
         }
 
-        final String content = jsonContent.getJSONObject("content").getString(key);
+        final String content = jsonContent.getString(key);
         return (content != null && content.equals("null")) ? null : content;
     }
 
@@ -100,11 +117,19 @@ public class JsonColumn implements Column {
     }
 
     @Override
+    public boolean isPresent(String key) {
+        if (jsonContent == null) {
+            return false;
+        }
+
+        return jsonContent.has(key);
+    }
+
+    @Override
     public boolean isNull(String key) {
         return getString(key) == null || getString(key).equals("null");
     }
 
-    @Override
     public String getString() {
         if (content == null) {
             return null;
@@ -112,10 +137,8 @@ public class JsonColumn implements Column {
 
         final String stringContent = content.toString();
         return (stringContent != null && stringContent.equals("null")) ? null : stringContent;
-
     }
 
-    @Override
     public int getInteger() {
         if (getString() == null) {
             return -1;
@@ -124,7 +147,6 @@ public class JsonColumn implements Column {
         return Integer.parseInt(getString());
     }
 
-    @Override
     public long getLong() {
         if (getString() == null) {
             return -1;
@@ -133,7 +155,6 @@ public class JsonColumn implements Column {
         return Long.parseLong(getString());
     }
 
-    @Override
     public float getFloat() {
         if (getString() == null) {
             return -1;
@@ -142,7 +163,6 @@ public class JsonColumn implements Column {
         return Float.parseFloat(getString());
     }
 
-    @Override
     public double getDouble() {
         if (getString() == null) {
             return -1;
@@ -151,7 +171,6 @@ public class JsonColumn implements Column {
         return Double.parseDouble(getString());
     }
 
-    @Override
     public short getShort() {
         if (getString() == null) {
             return -1;
@@ -160,7 +179,6 @@ public class JsonColumn implements Column {
         return Short.parseShort(getString());
     }
 
-    @Override
     public boolean getBoolean() {
         if (getString() == null) {
             return false;
@@ -169,27 +187,22 @@ public class JsonColumn implements Column {
         return Boolean.parseBoolean(getString());
     }
 
-    @Override
     public JSONObject getJsonObject() {
         return new JSONObject(getString());
     }
 
-    @Override
     public JSONArray getJsonArray() {
         return new JSONArray(getString());
     }
 
-    @Override
     public <T> T parse(Class<T> clazz) {
         return new Gson().fromJson(getString(), clazz);
     }
 
-    @Override
     public boolean isNull() {
         return getString() == null || getString().equals("null");
     }
 
-    @Override
     public long getCreation() {
         if (jsonContent == null) {
             return -1;
@@ -198,7 +211,6 @@ public class JsonColumn implements Column {
         return jsonContent.getLong("creation");
     }
 
-    @Override
     public String toString() {
         if (content != null)
             return content.toString();

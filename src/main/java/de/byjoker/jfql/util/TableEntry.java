@@ -3,7 +3,11 @@ package de.byjoker.jfql.util;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public interface Column extends SingleColumn {
+public interface TableEntry {
+
+    Object getObject(String key);
+
+    String getRawString(String key);
 
     String getString(String key);
 
@@ -24,6 +28,8 @@ public interface Column extends SingleColumn {
     JSONArray getJsonArray(String key);
 
     <T> T parse(String key, Class<T> clazz);
+
+    boolean isPresent(String key);
 
     boolean isNull(String key);
 

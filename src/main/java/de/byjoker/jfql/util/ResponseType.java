@@ -4,8 +4,8 @@ public enum ResponseType {
 
     ERROR,
     RESULT,
-    FORBIDDEN,
     SUCCESS,
+    FORBIDDEN,
     SYNTAX_ERROR
 
 

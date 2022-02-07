@@ -1,12 +1,8 @@
 package de.byjoker.jfql.repository;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-@Retention(RetentionPolicy.RUNTIME)
 public @interface DatabaseColumn {
 
-    String name() default "%";
+    String name() default "%VAR%";
 
     boolean primary() default false;
 

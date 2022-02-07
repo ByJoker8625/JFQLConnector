@@ -1,5 +1,7 @@
 package de.byjoker.jfql.repository;
 
+import de.byjoker.jfql.util.TableType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -9,10 +11,12 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface DatabaseTable {
 
-    String name() default "%";
+    String name() default "%CLASS%";
 
-    String primary() default "%";
+    String primary() default "%FIELDS%";
 
-    String structure() default "%";
+    String structure() default "%FIELDS%";
+
+    TableType type() default TableType.RELATIONAL;
 
 }
