@@ -4,8 +4,9 @@ import com.google.gson.Gson
 import de.byjoker.jfql.connection.Connection
 import de.byjoker.jfql.exception.RepositoryException
 import de.byjoker.jfql.statement.*
-import de.byjoker.jfql.util.TableEntry
 import de.byjoker.jfql.util.Response
+import de.byjoker.jfql.util.Result
+import de.byjoker.jfql.util.TableEntry
 import de.byjoker.jfql.util.TableType
 import org.json.XMLTokener
 import java.lang.reflect.Field
@@ -14,11 +15,11 @@ import java.util.function.Consumer
 import java.util.stream.Collectors
 
 
-abstract class JFQLRepositoryBuilder<T>(
+abstract class RelationalRepositoryBuilder<T>(
     private val connection: Connection,
     private val clazz: Class<T>,
     private var table: TableData? = null
-) : JFQLRepository<T> {
+) : Repository<T> {
 
     private val gson: Gson = Gson()
 
@@ -29,6 +30,10 @@ abstract class JFQLRepositoryBuilder<T>(
 
         val table = clazz.getAnnotation(DatabaseTable::class.java)
         val fields: List<ColumnData> = getColumnFields()
+
+        if (table.type != TableType.RELATIONAL) {
+            throw RepositoryException("JFQLRepositories only work with relational tables!")
+        }
 
         val primaryField = fields.firstOrNull { columnData -> columnData.primary }
 
@@ -47,7 +52,7 @@ abstract class JFQLRepositoryBuilder<T>(
         }
 
         connection.query(
-            "create table '$name' structure '$structure' like '${table.type}' primary-key '$primary'",
+            "create table '$name' structure '$structure' primary-key '$primary'",
             false
         )
 
@@ -72,7 +77,7 @@ abstract class JFQLRepositoryBuilder<T>(
 
                 val content = try {
                     if (json) {
-                        gson.toJson(field[XMLTokener.entity])
+                        gson.toJson(field[entity])
                     } else {
                         field[XMLTokener.entity]?.toString()
                     }
@@ -114,23 +119,16 @@ abstract class JFQLRepositoryBuilder<T>(
         val fields = getColumnFields(entity)
         val builder = InsertBuilder(table!!.name)
 
-        when (table!!.type) {
-            TableType.DOCUMENT -> {
-                //TODO
-            }
-            else -> {
-                val keys = StringBuilder("key")
-                val values = StringBuilder("value")
+        val keys = StringBuilder("key")
+        val values = StringBuilder("value")
 
-                for (field in fields) {
-                    keys.append(" ").append(field.name)
-                    values.append(" ").append(field.content ?: "null")
-                }
-
-                builder.keys(keys.toString())
-                builder.values(values.toString())
-            }
+        for (field in fields) {
+            keys.append(" ").append(field.name)
+            values.append(" ").append(field.content ?: "null")
         }
+
+        builder.keys(keys.toString())
+        builder.values(values.toString())
 
         return builder
     }
@@ -168,6 +166,22 @@ abstract class JFQLRepositoryBuilder<T>(
         connection.query(buildInsertStatement(entity).primary(readPrimaryContent(entity).toString()).build())
     }
 
+    override fun updateBy(entity: T, field: String, value: Any) {
+        updateWhere(entity, ConditionSetBuilder(ConditionBuilder(field).`is`().equals(value).build()).build())
+    }
+
+    override fun updateWhere(entity: T, conditions: String) {
+        updateWhere(entity, LegacyConditionSetBuilder(conditions).build())
+    }
+
+    override fun updateWhere(entity: T, conditionSet: ConditionSet) {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        connection.query(buildInsertStatement(entity).where(conditionSet).build())
+    }
+
     override fun delete(entity: T) {
         if (table == null) {
             throw RepositoryException("Repository have to been built with 'super.build();'!");
@@ -176,21 +190,89 @@ abstract class JFQLRepositoryBuilder<T>(
         connection.query(RemoveBuilder(readPrimaryContent(entity).toString()).from(table!!.name).build())
     }
 
-    override fun deleteAllBy(field: String, value: Any?) {
+    override fun deleteAll() {
         if (table == null) {
             throw RepositoryException("Repository have to been built with 'super.build();'!");
         }
 
-        connection.query(
-            RemoveBuilder("*").from(table!!.name)
-                .where(
-                    ConditionSetBuilder(
-                        ConditionBuilder(field).`is`().equals(value.toString()).build()
-                    ).build()
-                )
-                .build()
-        )
+        connection.query(RemoveBuilder("*").from(table!!.name).build())
     }
 
+    override fun deleteAllBy(field: String, value: Any) {
+        deleteAllWhere(ConditionSetBuilder(ConditionBuilder(field).`is`().equals(value).build()).build())
+    }
+
+    override fun deleteAllWhere(conditions: String) {
+        deleteAllWhere(LegacyConditionSetBuilder(conditions).build())
+    }
+
+    override fun deleteAllWhere(conditionSet: ConditionSet) {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        connection.query(RemoveBuilder("*").where(conditionSet).build())
+    }
+
+    override fun findOneBy(field: String, value: Any): T? {
+        return findOneWhere(ConditionSetBuilder(ConditionBuilder(field).`is`().equals(value).build()).build())
+    }
+
+    override fun findOneByPrimary(primary: Any): T? {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        return (connection.query(
+            SelectBuilder("*").from(table!!.name).primary(primary.toString()).build()
+        ) as Result).entries.map { tableEntry -> formatEntity(tableEntry) }.firstOrNull()
+    }
+
+    override fun findOneWhere(conditions: String): T? {
+        return findOneWhere(LegacyConditionSetBuilder(conditions).build())
+    }
+
+    override fun findOneWhere(conditionSet: ConditionSet): T? {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        return (connection.query(
+            SelectBuilder("*").from(table!!.name).where(conditionSet).build(),
+            false
+        ) as Result).entries.map { tableEntry -> formatEntity(tableEntry) }.firstOrNull()
+    }
+
+    override fun findAll(): MutableList<T> {
+        return findAll(SelectBuilder("*").from(table!!.name))
+    }
+
+    override fun findAll(statement: SelectBuilder): MutableList<T> {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        return (connection.query(
+            statement.build()
+        ) as Result).entries.map { tableEntry -> formatEntity(tableEntry) }.toMutableList()
+    }
+
+    override fun findAllBy(field: String, value: Any): MutableList<T> {
+        return findAllWhere(ConditionSetBuilder(ConditionBuilder(field).`is`().equals(value).build()).build())
+    }
+
+    override fun findAllWhere(conditions: String): MutableList<T> {
+        return findAllWhere(LegacyConditionSetBuilder(conditions).build())
+    }
+
+    override fun findAllWhere(conditionSet: ConditionSet): MutableList<T> {
+        if (table == null) {
+            throw RepositoryException("Repository have to been built with 'super.build();'!");
+        }
+
+        return (connection.query(
+            SelectBuilder("*").from(table!!.name).where(conditionSet).build()
+        ) as Result).entries.map { tableEntry -> formatEntity(tableEntry) }.toMutableList()
+    }
 
 }

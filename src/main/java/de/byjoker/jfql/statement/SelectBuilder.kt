@@ -7,12 +7,18 @@ class SelectBuilder(private val fields: String) {
 
     private var from: String? = null
     private var conditionSet: ConditionSet? = null
+    private var primary: String? = null
     private var limit: Int? = null
     private var order: Order? = null
     private var sort: String? = null
 
     fun from(from: String): SelectBuilder {
         this.from = from
+        return this
+    }
+
+    fun primary(primary: String): SelectBuilder {
+        this.primary = primary
         return this
     }
 
@@ -43,7 +49,9 @@ class SelectBuilder(private val fields: String) {
 
         val builder = StringBuilder("select value ").append(fields).append(" from ").append(from)
 
-        if (conditionSet != null) {
+        if (primary != null) {
+            builder.append(" primary-key ").append(primary)
+        } else if (conditionSet != null) {
             builder.append(" where ").append(conditionSet!!.conditions())
         }
 
