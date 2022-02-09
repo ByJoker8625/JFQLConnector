@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class LegacyTableEntry implements TableEntry {
+public class RelationalTableEntry implements TableEntry {
 
     private final JSONObject content;
     private final long createdAt;
 
-    public LegacyTableEntry(JSONObject content, long createdAt) {
+    public RelationalTableEntry(JSONObject content, long createdAt) {
         this.content = content;
         this.createdAt = createdAt;
     }

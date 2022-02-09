@@ -48,21 +48,26 @@ class TokenConnection(private var host: String, private val user: User) : Connec
 
     override fun connect() {
         if (!host.startsWith("http://") && !host.startsWith("https://"))
-            host = "https://$host";
+            host = "http://$host";
 
         try {
             token = send(
                 "$host/api/v1/login",
                 JSONObject().put("user", user.name).put("password", user.password)
-            )?.getJSONArray("result")?.getString(0)
+            ).getJSONArray("result")?.getString(0)
         } catch (ex: Exception) {
             throw ConnectorException(ex)
         }
     }
 
-    override fun close() {
+    override fun closeSession(ignoreStaticSessions: Boolean) {
+        if (user.name == "%TOKEN%" && ignoreStaticSessions) {
+            disconnect()
+            return
+        }
+
         send("$host/api/v1/logout", JSONObject().put("token", token))
-        token = null
+        disconnect()
     }
 
     override fun disconnect() {

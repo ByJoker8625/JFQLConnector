@@ -8,13 +8,16 @@ public class DeprecatedTableEntry implements TableEntry {
 
     private final JSONObject jsonContent;
     private final Object content;
+    private final long creation;
 
-    public DeprecatedTableEntry(JSONObject jsonContent) {
+    public DeprecatedTableEntry(JSONObject jsonContent, long creation) {
         this.jsonContent = jsonContent;
+        this.creation = creation;
         this.content = null;
     }
 
-    public DeprecatedTableEntry(Object content) {
+    public DeprecatedTableEntry(Object content, long creation) {
+        this.creation = creation;
         this.jsonContent = null;
         this.content = content;
     }

@@ -6,7 +6,7 @@ import de.byjoker.jfql.util.Response
 interface Connection {
     fun connect()
     fun disconnect()
-    fun close()
+    fun closeSession(ignoreStaticSessions: Boolean = true)
     fun query(query: String, exception: Boolean = true): Response
     fun query(statement: Statement, exception: Boolean = true): Response
     fun isConnected(): Boolean
