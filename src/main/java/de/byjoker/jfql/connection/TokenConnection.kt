@@ -52,7 +52,7 @@ class TokenConnection(private var host: String, private val user: User) : Connec
 
         try {
             token = send(
-                "$host/api/v1/login",
+                "$host/api/v1/session/open",
                 JSONObject().put("user", user.name).put("password", user.password)
             ).getJSONArray("result")?.getString(0)
         } catch (ex: Exception) {
@@ -66,7 +66,7 @@ class TokenConnection(private var host: String, private val user: User) : Connec
             return
         }
 
-        send("$host/api/v1/logout", JSONObject().put("token", token))
+        send("$host/api/v1/session/close", JSONObject().put("token", token))
         disconnect()
     }
 
