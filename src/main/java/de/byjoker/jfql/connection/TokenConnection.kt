@@ -1,7 +1,6 @@
 package de.byjoker.jfql.connection
 
 import de.byjoker.jfql.exception.ConnectorException
-import de.byjoker.jfql.statement.QueryStatement
 import de.byjoker.jfql.statement.Statement
 import de.byjoker.jfql.util.*
 import org.json.JSONObject
@@ -74,15 +73,15 @@ class TokenConnection(private var host: String, private val user: User) : Connec
         token = null
     }
 
-    override fun query(query: String, exception: Boolean): Response {
-        return query(QueryStatement(query), exception)
+    override fun query(statement: Statement, exception: Boolean): Response {
+        return query(statement.toQuery(), exception)
     }
 
-    override fun query(statement: Statement, exception: Boolean): Response {
+    override fun query(query: String, exception: Boolean): Response {
         val response = SimpleResponse(
             send(
                 "$host/api/v1/query",
-                JSONObject().put("token", token).put("query", statement.toQuery())
+                JSONObject().put("token", token).put("query", query)
             ), exception
         )
 

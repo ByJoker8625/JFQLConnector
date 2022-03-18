@@ -211,7 +211,7 @@ public class DeprecatedTableEntry implements TableEntry {
             return -1;
         }
 
-        return jsonContent.getLong("creation");
+        return creation;
     }
 
     public String toString() {

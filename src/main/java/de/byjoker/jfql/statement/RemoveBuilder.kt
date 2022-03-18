@@ -2,7 +2,7 @@ package de.byjoker.jfql.statement
 
 import de.byjoker.jfql.exception.ConnectorException
 
-class RemoveBuilder(val field: String) {
+class RemoveBuilder(private val field: String) {
 
     private var from: String? = null
     private var conditionSet: ConditionSet? = null
